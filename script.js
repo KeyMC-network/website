@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // DOM Elements
+    // ELEMENTI DOM
     const loginForm = document.getElementById("login-form");
     const dashboard = document.getElementById("dashboard");
     const adminLoginButton = document.getElementById("admin-login-button");
@@ -12,16 +12,94 @@ document.addEventListener("DOMContentLoaded", () => {
     const addSubsectionButton = document.getElementById("add-subsection");
     const sectionsList = document.getElementById("sections-list");
 
-    // Admin credentials
+    // CREDENZIALI ADMIN
     const username = "ADMIN";
     const password = "ADMIN1234";
 
-    // Data storage
+    // SEZIONI SALVATE
     let savedSections = JSON.parse(localStorage.getItem("sections")) || [];
 
     /**
-     * Smooth scroll to section.
-     * @param {string} sectionId - The ID of the section to scroll to.
+     * Mostra un messaggio all'utente.
+     * @param {string} message - Il messaggio da mostrare.
+     * @param {string} type - Il tipo di messaggio ("success" o "error").
+     */
+    function showMessage(message, type) {
+        const messageBox = document.createElement("div");
+        messageBox.className = `message ${type}`;
+        messageBox.textContent = message;
+        document.body.appendChild(messageBox);
+        setTimeout(() => {
+            messageBox.remove();
+        }, 3000);
+    }
+
+    /**
+     * APRE IL DASHBOARD
+     */
+    function openDashboard() {
+        loginForm.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+        showMessage("Welcome to the Admin Dashboard!", "success");
+    }
+
+    /**
+     * CHIUDE IL DASHBOARD
+     */
+    function closeDashboard() {
+        dashboard.classList.add("hidden");
+        loginForm.classList.add("hidden");
+        showMessage("Logged out successfully!", "success");
+    }
+
+    /**
+     * GESTIONE LOGIN ADMIN
+     */
+    adminLoginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const inputUsername = document.getElementById("username").value;
+        const inputPassword = document.getElementById("password").value;
+
+        if (inputUsername === username && inputPassword === password) {
+            openDashboard();
+        } else {
+            showMessage("Invalid credentials. Please try again.", "error");
+        }
+    });
+
+    /**
+     * MOSTRA IL FORM DI LOGIN
+     */
+    adminLoginButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        loginForm.classList.remove("hidden");
+    });
+
+    /**
+     * GESTIONE LOGOUT
+     */
+    logoutButton.addEventListener("click", () => {
+        closeDashboard();
+    });
+
+    /**
+     * CREA IL LINK PER OGNI SEZIONE NELLA NAVBAR.
+     * @param {string} sectionId - L'ID della sezione.
+     * @param {string} sectionTitle - Il titolo della sezione.
+     */
+    function createNavLink(sectionId, sectionTitle) {
+        const navItem = document.createElement("li");
+        navItem.innerHTML = `<a href="#${sectionId}" class="nav-link">${sectionTitle}</a>`;
+        navItem.addEventListener("click", (e) => {
+            e.preventDefault();
+            scrollToSection(sectionId);
+        });
+        dynamicNav.appendChild(navItem);
+    }
+
+    /**
+     * SCORRE ALLA SEZIONE SPECIFICATA.
+     * @param {string} sectionId - L'ID della sezione.
      */
     function scrollToSection(sectionId) {
         const targetSection = document.getElementById(sectionId);
@@ -31,18 +109,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * Renders all sections to the main page and admin dashboard.
+     * RENDERIZZA LE SEZIONI NELLA PAGINA E NEL DASHBOARD.
      */
     function renderSections() {
-        dynamicContent.innerHTML = ""; // Clear main page content
-        dynamicNav.innerHTML = ""; // Clear navigation links
-        sectionsList.innerHTML = ""; // Clear admin dashboard sections
+        dynamicContent.innerHTML = "";
+        dynamicNav.innerHTML = "";
+        sectionsList.innerHTML = "";
 
-        // Loop through all saved sections
         savedSections.forEach((section, index) => {
             const sectionId = `section-${index}`;
 
-            // Main page content
+            // Render sezione nella pagina principale
             const sectionDiv = document.createElement("section");
             sectionDiv.style.backgroundColor = section.color;
             sectionDiv.id = sectionId;
@@ -65,16 +142,10 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             dynamicContent.appendChild(sectionDiv);
 
-            // Navigation links
-            const navItem = document.createElement("li");
-            navItem.innerHTML = `<a href="#${sectionId}" class="nav-link">${section.title}</a>`;
-            navItem.addEventListener("click", (e) => {
-                e.preventDefault();
-                scrollToSection(sectionId);
-            });
-            dynamicNav.appendChild(navItem);
+            // Aggiunge link alla navbar
+            createNavLink(sectionId, section.title);
 
-            // Admin dashboard controls
+            // Aggiunge controlli nella dashboard
             const adminSection = document.createElement("div");
             adminSection.innerHTML = `
                 <h3>${section.title}</h3>
@@ -86,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * Adds a new sub-section dynamically to the section form.
+     * AGGIUNGE UNA NUOVA SOTTO-SEZIONE DINAMICAMENTE.
      */
     function addSubsection() {
         const subsectionDiv = document.createElement("div");
@@ -104,31 +175,28 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         subsectionsContainer.appendChild(subsectionDiv);
 
-        // Add event listener to remove subsection button
+        // Aggiunge evento per rimuovere la sotto-sezione
         subsectionDiv.querySelector(".remove-subsection").addEventListener("click", () => {
             subsectionDiv.remove();
         });
     }
 
     /**
-     * Handles the submission of the section form.
+     * GESTISCE IL SUBMIT DEL FORM DI CREAZIONE SEZIONI.
      */
     sectionForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        // Get main section data
         const title = document.getElementById("section-title").value;
         const description = document.getElementById("section-content").value;
         const color = document.getElementById("section-color").value;
 
-        // Gather all subsections
         const subsections = Array.from(subsectionsContainer.children).map((sub) => {
             const subTitle = sub.querySelector(".sub-title").value;
             const subDescription = sub.querySelector(".sub-description").value;
             const subColor = sub.querySelector(".sub-color").value;
             const subImageFile = sub.querySelector(".sub-image").files[0];
 
-            // Handle image upload
             let subImage = null;
             if (subImageFile) {
                 const reader = new FileReader();
@@ -141,100 +209,28 @@ document.addEventListener("DOMContentLoaded", () => {
             return { title: subTitle, description: subDescription, color: subColor, image: subImage };
         });
 
-        // Add new section to savedSections array
         savedSections.push({ title, description, color, subsections });
         localStorage.setItem("sections", JSON.stringify(savedSections));
 
-        // Update UI
         renderSections();
         sectionForm.reset();
         subsectionsContainer.innerHTML = "";
+        showMessage("Section created successfully!", "success");
     });
 
     /**
-     * Deletes a section by index.
-     * @param {number} index - The index of the section to delete.
+     * ELIMINA UNA SEZIONE
      */
     window.deleteSection = (index) => {
         if (confirm("Are you sure you want to delete this section?")) {
             savedSections.splice(index, 1);
             localStorage.setItem("sections", JSON.stringify(savedSections));
             renderSections();
+            showMessage("Section deleted successfully.", "success");
         }
     };
 
-    /**
-     * Edits a section by index.
-     * @param {number} index - The index of the section to edit.
-     */
-    window.editSection = (index) => {
-        const section = savedSections[index];
-        document.getElementById("section-title").value = section.title;
-        document.getElementById("section-content").value = section.description;
-        document.getElementById("section-color").value = section.color;
-
-        // Clear existing subsections
-        subsectionsContainer.innerHTML = "";
-        section.subsections.forEach((sub) => {
-            const subsectionDiv = document.createElement("div");
-            subsectionDiv.className = "subsection";
-            subsectionDiv.innerHTML = `
-                <label>Sub-Section Title:</label>
-                <input type="text" class="sub-title" value="${sub.title}" required>
-                <label>Sub-Section Description:</label>
-                <textarea class="sub-description" required>${sub.description}</textarea>
-                <label>Sub-Section Background Color:</label>
-                <input type="color" class="sub-color" value="${sub.color}">
-                <label>Sub-Section Image (optional):</label>
-                <input type="file" class="sub-image" accept="image/*">
-                <button type="button" class="remove-subsection">Remove</button>
-            `;
-            subsectionsContainer.appendChild(subsectionDiv);
-
-            // Add event listener to remove subsection button
-            subsectionDiv.querySelector(".remove-subsection").addEventListener("click", () => {
-                subsectionDiv.remove();
-            });
-        });
-
-        // Update submit behavior to save changes
-        sectionForm.onsubmit = (e) => {
-            e.preventDefault();
-
-            section.title = document.getElementById("section-title").value;
-            section.description = document.getElementById("section-content").value;
-            section.color = document.getElementById("section-color").value;
-
-            section.subsections = Array.from(subsectionsContainer.children).map((sub) => {
-                const subTitle = sub.querySelector(".sub-title").value;
-                const subDescription = sub.querySelector(".sub-description").value;
-                const subColor = sub.querySelector(".sub-color").value;
-                const subImageFile = sub.querySelector(".sub-image").files[0];
-
-                let subImage = null;
-                if (subImageFile) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        subImage = reader.result;
-                    };
-                    reader.readAsDataURL(subImageFile);
-                }
-
-                return { title: subTitle, description: subDescription, color: subColor, image: subImage };
-            });
-
-            // Save changes
-            savedSections[index] = section;
-            localStorage.setItem("sections", JSON.stringify(savedSections));
-            renderSections();
-            sectionForm.reset();
-            sectionForm.onsubmit = sectionFormDefault;
-        };
-    };
-
-    // Add initial subsection
+    // Eventi
     addSubsectionButton.addEventListener("click", addSubsection);
-
-    // Render initial sections
     renderSections();
 });
