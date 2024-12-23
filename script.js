@@ -1,4 +1,4 @@
-// DOMContentLoaded Event
+// Attendi che il contenuto DOM sia completamente caricato
 document.addEventListener("DOMContentLoaded", () => {
     // ELEMENTI DOM PRINCIPALI
     const loginForm = document.getElementById("login-form");
@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sectionForm = document.getElementById("section-form");
     const subsectionsContainer = document.getElementById("subsections-container");
     const addSubsectionButton = document.getElementById("add-subsection");
+    const resetButton = document.createElement("button"); // Pulsante per resettare tutto
 
     // CREDENZIALI ADMIN
     const username = "ADMIN";
@@ -22,14 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let savedSections = JSON.parse(localStorage.getItem("sections")) || [];
     const savedBackground = localStorage.getItem("heroBackground");
 
-    // CARICA BACKGROUND HERO SALVATO
+    // CARICA BACKGROUND HERO SALVATO (se esiste)
     if (savedBackground) {
         heroImage.src = savedBackground;
     }
 
     /**
-     * Mostra il form di login
-     * Questa funzione rende visibile il modulo di login nascondendo il dashboard
+     * Mostra il modulo di login e nasconde la dashboard
      */
     adminLoginButton.addEventListener("click", () => {
         loginForm.classList.remove("hidden");
@@ -38,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * Gestisce il login
-     * Controlla le credenziali inserite e visualizza la dashboard in caso di successo
      */
     adminLoginForm.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -56,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * Gestisce il logout
-     * Nasconde il dashboard e il login form
      */
     logoutButton.addEventListener("click", () => {
         dashboard.classList.add("hidden");
@@ -66,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * Cambia il background della sezione Hero
-     * Permette di caricare un'immagine e aggiorna la sezione Hero
      */
     backgroundForm.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -87,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * Renderizza tutte le sezioni salvate
-     * Aggiorna il contenuto dinamico della pagina principale
      */
     function renderSections() {
         dynamicContent.innerHTML = ""; // Svuota il contenuto precedente
@@ -111,8 +107,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
+     * Pulsante di reset per cancellare tutte le sezioni
+     */
+    resetButton.textContent = "Reset All Sections";
+    resetButton.style.backgroundColor = "#ff4d4d";
+    resetButton.style.color = "white";
+    resetButton.style.border = "none";
+    resetButton.style.padding = "10px 15px";
+    resetButton.style.borderRadius = "5px";
+    resetButton.style.cursor = "pointer";
+    resetButton.style.marginTop = "20px";
+    dashboard.appendChild(resetButton);
+
+    resetButton.addEventListener("click", () => {
+        if (confirm("Sei sicuro di voler eliminare tutte le sezioni?")) {
+            savedSections = [];
+            localStorage.removeItem("sections");
+            renderSections();
+            alert("Tutte le sezioni sono state eliminate.");
+        }
+    });
+
+    /**
      * Aggiunge una nuova sotto-sezione
-     * Crea un campo dinamico per titolo, descrizione e colore
      */
     addSubsectionButton.addEventListener("click", () => {
         const subsectionDiv = document.createElement("div");
@@ -130,7 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * Salva una nuova sezione
-     * Gestisce il salvataggio di titolo, descrizione, colore e sotto-sezioni
      */
     sectionForm.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -157,7 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * Elimina una sezione specifica
-     * Utilizza l'indice per rimuovere la sezione salvata
      */
     function deleteSection(index) {
         if (confirm("Sei sicuro di voler eliminare questa sezione?")) {
@@ -170,7 +185,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * Modifica una sezione specifica
-     * Carica i dati nel form per la modifica
      */
     function editSection(index) {
         const section = savedSections[index];
