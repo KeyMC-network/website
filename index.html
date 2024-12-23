@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Admin Login Button -->
-    <a href="#" class="admin-button" id="admin-login-button">Admin</a>
+    <!-- Stylish Admin Login Button -->
+    <a href="#" class="admin-button" id="admin-login-button">⚙️ Admin Panel</a>
 
     <!-- Website Header Section -->
     <header class="main-header">
@@ -34,9 +34,9 @@
         </div>
     </section>
 
-    <!-- Dynamic Sections Placeholder -->
+    <!-- Dynamic Content Sections Placeholder -->
     <section id="dynamic-content">
-        <!-- Content dynamically managed by admin -->
+        <!-- Sections dynamically managed by admin -->
         <p>Use the admin dashboard to create sections dynamically!</p>
     </section>
 
@@ -70,17 +70,20 @@
         <!-- Form to Add or Edit Sections -->
         <form id="section-form">
             <h2>Create or Edit Section</h2>
-            <label for="section-title">Title:</label>
+            <label for="section-title">Section Title:</label>
             <input type="text" id="section-title" placeholder="Section Title" required>
             
-            <label for="section-content">Content:</label>
-            <textarea id="section-content" placeholder="Section Content" required></textarea>
+            <label for="section-content">Section Description:</label>
+            <textarea id="section-content" placeholder="Section Description" required></textarea>
             
-            <label for="section-image">Image (optional):</label>
-            <input type="file" id="section-image" accept="image/*">
-            
-            <label for="section-color">Background Color:</label>
+            <label for="section-color">Section Background Color:</label>
             <input type="color" id="section-color" value="#ffffff">
+
+            <h3>Sub-Sections</h3>
+            <div id="subsections-container">
+                <!-- Sub-sections dynamically added -->
+            </div>
+            <button type="button" id="add-subsection">Add Sub-Section</button>
             
             <button type="submit">Save Section</button>
         </form>
