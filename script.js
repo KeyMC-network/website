@@ -63,8 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     adminLoginForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        const inputUsername = document.getElementById("username").value;
-        const inputPassword = passwordField.value;
+        const inputUsername = document.getElementById("username").value.trim();
+        const inputPassword = passwordField.value.trim();
 
         // Controlla le credenziali
         const matchedAdmin = savedAdmins.find(
@@ -191,6 +191,49 @@ document.addEventListener("DOMContentLoaded", () => {
             renderSections(); // Aggiorna il contenuto dinamico
             alert("Tutte le sezioni sono state eliminate con successo.");
         }
+    });
+
+    /**
+     * Aggiunge una nuova sotto-sezione
+     */
+    addSubsectionButton.addEventListener("click", () => {
+        const subsectionDiv = document.createElement("div");
+        subsectionDiv.innerHTML = `
+            <input type="text" class="sub-title" placeholder="Titolo Sotto-sezione">
+            <textarea class="sub-description" placeholder="Descrizione Sotto-sezione"></textarea>
+            <input type="color" class="sub-color">
+            <button type="button" class="remove-subsection">Rimuovi</button>
+        `;
+        subsectionDiv.querySelector(".remove-subsection").addEventListener("click", () => {
+            subsectionDiv.remove();
+        });
+        subsectionsContainer.appendChild(subsectionDiv);
+    });
+
+    /**
+     * Salva una nuova sezione
+     */
+    sectionForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const title = document.getElementById("section-title").value;
+        const description = document.getElementById("section-content").value;
+        const color = document.getElementById("section-color").value;
+
+        const subsections = Array.from(subsectionsContainer.children).map(sub => {
+            return {
+                title: sub.querySelector(".sub-title").value,
+                description: sub.querySelector(".sub-description").value,
+                color: sub.querySelector(".sub-color").value,
+            };
+        });
+
+        savedSections.push({ title, description, color, subsections });
+        localStorage.setItem("sections", JSON.stringify(savedSections));
+
+        renderSections();
+        sectionForm.reset();
+        subsectionsContainer.innerHTML = ""; // Resetta il contenitore delle sotto-sezioni
+        alert("Sezione creata con successo!");
     });
 
     // Renderizza le sezioni salvate all'avvio
