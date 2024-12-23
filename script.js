@@ -1,4 +1,3 @@
-// Attendi che il contenuto DOM sia completamente caricato
 document.addEventListener("DOMContentLoaded", () => {
     // ELEMENTI DOM PRINCIPALI
     const loginForm = document.getElementById("login-form");
@@ -88,18 +87,25 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderSections() {
         dynamicContent.innerHTML = ""; // Svuota il contenuto precedente
         savedSections.forEach((section, index) => {
+            // Controlla che i dati della sezione siano validi
+            if (!section || !section.title || !section.description) {
+                console.warn(`Sezione corrotta trovata e ignorata:`, section);
+                return; // Salta questa sezione
+            }
+
+            // Crea l'elemento HTML per la sezione valida
             const sectionDiv = document.createElement("div");
-            sectionDiv.style.backgroundColor = section.color;
+            sectionDiv.style.backgroundColor = section.color || "#ffffff";
             sectionDiv.innerHTML = `
                 <h2>${section.title}</h2>
                 <p>${section.description}</p>
                 <div>
-                    ${section.subsections.map(sub => `
-                        <div style="background-color:${sub.color}; margin:10px; padding:10px; border-radius:5px;">
-                            <h3>${sub.title}</h3>
-                            <p>${sub.description}</p>
+                    ${section.subsections?.map(sub => `
+                        <div style="background-color:${sub.color || "#f4f4f4"}; margin:10px; padding:10px; border-radius:5px;">
+                            <h3>${sub.title || "Senza Titolo"}</h3>
+                            <p>${sub.description || "Nessuna descrizione"}</p>
                         </div>
-                    `).join("")}
+                    `).join("") || ""}
                 </div>
             `;
             dynamicContent.appendChild(sectionDiv);
@@ -120,11 +126,11 @@ document.addEventListener("DOMContentLoaded", () => {
     dashboard.appendChild(resetButton);
 
     resetButton.addEventListener("click", () => {
-        if (confirm("Sei sicuro di voler eliminare tutte le sezioni?")) {
+        if (confirm("Sei sicuro di voler eliminare tutte le sezioni salvate?")) {
             savedSections = [];
-            localStorage.removeItem("sections");
-            renderSections();
-            alert("Tutte le sezioni sono state eliminate.");
+            localStorage.clear(); // Pulisce tutto il localStorage, incluse le sezioni vecchie
+            renderSections(); // Aggiorna il contenuto dinamico
+            alert("Tutte le sezioni sono state eliminate con successo.");
         }
     });
 
