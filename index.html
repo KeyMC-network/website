@@ -15,12 +15,11 @@
         <div class="container">
             <a href="#" class="logo">KeyMC</a>
             <nav>
-                <ul class="nav-links">
-                    <li><a href="#dynamic-content">Content</a></li>
-                    <li><a href="#why-choose-us">Why Choose Us</a></li>
+                <ul id="dynamic-nav" class="nav-links">
+                    <!-- Navigation dynamically added by admin -->
                 </ul>
                 <a href="https://discord.keymc.me" class="discord-button">
-                    <img src="images/discord-logo.png" alt="Discord Icon"> Discord
+                    <img src="https://cdn-icons-png.flaticon.com/512/5968/5968899.png" alt="Discord Icon"> Discord
                 </a>
             </nav>
         </div>
@@ -63,6 +62,7 @@
         <form id="section-form">
             <input type="text" id="section-title" placeholder="Section Title" required>
             <textarea id="section-content" placeholder="Section Content" required></textarea>
+            <input type="url" id="section-image" placeholder="Image URL (optional)">
             <button type="submit">Add Section</button>
         </form>
         <div id="sections-list">
