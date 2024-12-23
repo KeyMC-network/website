@@ -6,7 +6,6 @@
     <meta name="description" content="KeyMC - Your ultimate Minecraft server with dynamic content and customization.">
     <meta name="author" content="KeyMC Development Team">
     <title>KeyMC - Minecraft Server</title>
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Admin Login Button -->
@@ -14,9 +13,8 @@
 
     <!-- Hero Section -->
     <section id="hero">
-        <div class="container">
-            <!-- New image replacing the hero section -->
-            <img src="0EC0D36C-1536-408D-A840-01C43CA73056.jpeg" alt="KeyMC Hero Image" style="width: 100%; height: auto; border-radius: 8px;">
+        <div class="container" id="hero-container">
+            <img src="0EC0D36C-1536-408D-A840-01C43CA73056.jpeg" alt="KeyMC Hero Image" id="hero-image" style="width: 100%; height: auto; border-radius: 8px;">
         </div>
     </section>
 
@@ -53,6 +51,13 @@
         <!-- Logout Button -->
         <button id="logout-button">Logout</button>
 
+        <!-- Form to Change Hero Background -->
+        <form id="background-form">
+            <h2>Change Hero Background</h2>
+            <input type="file" id="background-upload" accept="image/*">
+            <button type="submit">Update Background</button>
+        </form>
+
         <!-- Form to Add or Edit Sections -->
         <form id="section-form">
             <h2>Create or Edit Section</h2>
@@ -82,7 +87,7 @@
         </div>
     </div>
 
-    <!-- JavaScript File Integration -->
+    <!-- Script -->
     <script src="script.js"></script>
 </body>
 </html>
