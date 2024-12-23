@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyMC - Minecraft Server</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Admin Login Button -->
+    <a href="#" class="admin-button" id="admin-login-button">Admin</a>
+
+    <!-- Header Section -->
+    <header class="main-header">
+        <div class="container">
+            <a href="#" class="logo">KeyMC</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#dynamic-content">Content</a></li>
+                    <li><a href="#why-choose-us">Why Choose Us</a></li>
+                </ul>
+                <a href="https://discord.keymc.me" class="discord-button">
+                    <img src="images/discord-logo.png" alt="Discord Icon"> Discord
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="container">
+            <h1>Welcome to KeyMC</h1>
+            <p>Efficiency. Dedication. Passion.</p>
+        </div>
+    </section>
+
+    <!-- Dynamic Content Sections -->
+    <section id="dynamic-content">
+        <!-- Content dynamically added by admin -->
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 KeyMC. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Admin Login Form -->
+    <div class="login-container hidden" id="login-form">
+        <h1>Admin Login</h1>
+        <form id="admin-login-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="dashboard hidden" id="dashboard">
+        <h1>Admin Dashboard</h1>
+        <button id="logout-button">Logout</button>
+        <form id="section-form">
+            <input type="text" id="section-title" placeholder="Section Title" required>
+            <textarea id="section-content" placeholder="Section Content" required></textarea>
+            <button type="submit">Add Section</button>
+        </form>
+        <div id="sections-list">
+            <!-- List of sections managed by admin -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
