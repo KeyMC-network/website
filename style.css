@@ -1,8 +1,7 @@
-/* Base Styles */
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Arial', sans-serif;
+    font-family: Arial, sans-serif;
     background: linear-gradient(to right, #4e54c8, #8f94fb);
     color: white;
 }
@@ -42,30 +41,8 @@ body {
     transition: color 0.3s;
 }
 
-.discord-button {
-    background: white;
-    color: #5865F2;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-/* Hero Section */
-#hero {
-    text-align: center;
-    padding: 100px 20px;
-    background: #5865F2;
-    color: white;
-}
-
-#hero h1 {
-    font-size: 48px;
-}
-
-#hero p {
-    font-size: 20px;
-    font-weight: lighter;
+.nav-links a:hover {
+    color: #ddd;
 }
 
 /* Dynamic Sections */
@@ -75,9 +52,10 @@ body {
     background: white;
     color: #333;
     border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Admin Login & Dashboard */
+/* Admin Login */
 .hidden {
     display: none;
 }
@@ -92,10 +70,6 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.login-container h1, .dashboard h1 {
-    text-align: center;
-}
-
 button {
     background: #5865F2;
     color: white;
@@ -105,4 +79,8 @@ button {
     cursor: pointer;
     font-weight: bold;
     margin-top: 10px;
+}
+
+button:hover {
+    background: #4e4cb8;
 }
