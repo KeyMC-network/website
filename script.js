@@ -1,14 +1,10 @@
-// === DOCUMENT READY ===
 document.addEventListener("DOMContentLoaded", () => {
     // === ELEMENTI PRINCIPALI ===
-    const adminLoginForm = document.getElementById("admin-login-form");
+    const loginForm = document.getElementById("login-form");
+    const dashboard = document.getElementById("dashboard");
     const togglePasswordButton = document.getElementById("toggle-password");
     const passwordField = document.getElementById("password");
     const logoutButton = document.getElementById("logout-button");
-    const createStaffForm = document.getElementById("create-staff-form");
-    const staffList = document.getElementById("staff-ul");
-    const staffUsernameField = document.getElementById("staff-username");
-    const staffPasswordField = document.getElementById("staff-password");
     const dynamicContent = document.getElementById("dynamic-content");
     const sectionForm = document.getElementById("section-form");
     const subsectionsContainer = document.getElementById("subsections-container");
@@ -16,37 +12,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const resetButton = document.createElement("button");
 
     // === CREDENZIALI PRINCIPALI ===
-    const masterUsername = "ADMIN";
-    const masterPassword = "ADMIN1234";
+    const adminUsername = "ADMIN";
+    const adminPassword = "ADMIN1234";
 
     // === DATI SALVATI ===
     let savedSections = JSON.parse(localStorage.getItem("sections")) || [];
-    let savedAdmins = JSON.parse(localStorage.getItem("admins")) || [
-        { username: masterUsername, password: masterPassword },
-    ];
-
-    // === FUNZIONI UTILI ===
 
     /**
-     * Aggiorna il contenuto dinamico del DOM
-     */
-    function updateDOM(element, content) {
-        if (element) {
-            element.innerHTML = content;
-        }
-    }
-
-    /**
-     * Aggiunge un evento con sicurezza
-     */
-    function safeAddEventListener(element, event, callback) {
-        if (element) {
-            element.addEventListener(event, callback);
-        }
-    }
-
-    /**
-     * Mostra un messaggio di conferma
+     * Mostra un messaggio di alert
      */
     function showAlert(message, type = "info") {
         switch (type) {
@@ -61,8 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // === TOGGLE PASSWORD VISIBILITY ===
-    safeAddEventListener(togglePasswordButton, "click", () => {
+    /**
+     * Toggle visibilità password
+     */
+    togglePasswordButton.addEventListener("click", () => {
         if (passwordField.type === "password") {
             passwordField.type = "text";
             togglePasswordButton.textContent = "🙈";
@@ -72,70 +47,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // === LOGIN ADMIN ===
-    safeAddEventListener(adminLoginForm, "submit", (e) => {
+    /**
+     * Gestione login
+     */
+    loginForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const inputUsername = document.getElementById("username").value.trim();
         const inputPassword = passwordField.value.trim();
 
-        const matchedAdmin = savedAdmins.find(
-            (admin) => admin.username === inputUsername && admin.password === inputPassword
-        );
-
-        if (matchedAdmin) {
+        if (inputUsername === adminUsername && inputPassword === adminPassword) {
             showAlert("Login effettuato con successo!", "success");
-            window.location.href = "dashboard.html"; // Reindirizza alla dashboard
+            loginForm.classList.add("hidden");
+            dashboard.classList.remove("hidden");
         } else {
             showAlert("Credenziali non valide. Riprova.", "error");
         }
     });
 
-    // === LOGOUT ADMIN ===
-    safeAddEventListener(logoutButton, "click", () => {
+    /**
+     * Logout
+     */
+    logoutButton.addEventListener("click", () => {
         showAlert("Hai effettuato il logout.", "info");
-        window.location.href = "index.html"; // Torna al login
+        dashboard.classList.add("hidden");
+        loginForm.classList.remove("hidden");
     });
 
-    // === CREAZIONE NUOVO ADMIN ===
-    safeAddEventListener(createStaffForm, "submit", (e) => {
-        e.preventDefault();
-        const newUsername = staffUsernameField.value.trim();
-        const newPassword = staffPasswordField.value.trim();
-
-        if (!newUsername || !newPassword) {
-            showAlert("Inserisci un username e una password validi.", "error");
-            return;
-        }
-
-        const existingAdmin = savedAdmins.find((admin) => admin.username === newUsername);
-        if (existingAdmin) {
-            showAlert("Questo username esiste già. Scegline un altro.", "error");
-            return;
-        }
-
-        savedAdmins.push({ username: newUsername, password: newPassword });
-        localStorage.setItem("admins", JSON.stringify(savedAdmins));
-        updateStaffList();
-        createStaffForm.reset();
-        showAlert(`Admin "${newUsername}" creato con successo.`, "success");
-    });
-
-    // === AGGIORNAMENTO LISTA STAFF ===
-    function updateStaffList() {
-        if (!staffList) return;
-        staffList.innerHTML = "";
-        savedAdmins.forEach((admin) => {
-            const li = document.createElement("li");
-            li.textContent = admin.username;
-            staffList.appendChild(li);
-        });
-    }
-
-    updateStaffList();
-
-    // === RENDERIZZA SEZIONI ===
+    /**
+     * Renderizza sezioni salvate
+     */
     function renderSections() {
-        if (!dynamicContent) return;
         dynamicContent.innerHTML = "";
         savedSections.forEach((section, index) => {
             const sectionDiv = document.createElement("div");
@@ -162,9 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    renderSections();
-
-    // === RESETTA SEZIONI ===
+    /**
+     * Resetta tutte le sezioni salvate
+     */
     resetButton.textContent = "Reset All Sections";
     resetButton.style.backgroundColor = "#ff4d4d";
     resetButton.style.color = "white";
@@ -174,11 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
     resetButton.style.cursor = "pointer";
     resetButton.style.marginTop = "20px";
 
-    if (dynamicContent) {
-        dynamicContent.appendChild(resetButton);
-    }
+    dynamicContent.appendChild(resetButton);
 
-    safeAddEventListener(resetButton, "click", () => {
+    resetButton.addEventListener("click", () => {
         if (confirm("Sei sicuro di voler eliminare tutte le sezioni salvate?")) {
             savedSections = [];
             localStorage.removeItem("sections");
@@ -187,8 +126,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // === AGGIUNGI SOTTO-SEZIONE ===
-    safeAddEventListener(addSubsectionButton, "click", () => {
+    /**
+     * Aggiunge una nuova sotto-sezione
+     */
+    addSubsectionButton.addEventListener("click", () => {
         const subsectionDiv = document.createElement("div");
         subsectionDiv.innerHTML = `
             <input type="text" class="sub-title" placeholder="Titolo Sotto-sezione">
@@ -202,8 +143,10 @@ document.addEventListener("DOMContentLoaded", () => {
         subsectionsContainer.appendChild(subsectionDiv);
     });
 
-    // === SALVA SEZIONE ===
-    safeAddEventListener(sectionForm, "submit", (e) => {
+    /**
+     * Salva una nuova sezione
+     */
+    sectionForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const title = document.getElementById("section-title").value;
         const description = document.getElementById("section-content").value;
@@ -225,4 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
         subsectionsContainer.innerHTML = "";
         showAlert("Sezione creata con successo!", "success");
     });
+
+    // Renderizza le sezioni salvate all'avvio
+    renderSections();
 });
