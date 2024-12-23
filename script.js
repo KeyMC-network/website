@@ -20,6 +20,17 @@ document.addEventListener("DOMContentLoaded", () => {
     let savedSections = JSON.parse(localStorage.getItem("sections")) || [];
 
     /**
+     * Smooth scroll to section.
+     * @param {string} sectionId - The ID of the section to scroll to.
+     */
+    function scrollToSection(sectionId) {
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.scrollIntoView({ behavior: "smooth" });
+        }
+    }
+
+    /**
      * Renders all sections to the main page and admin dashboard.
      */
     function renderSections() {
@@ -29,10 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Loop through all saved sections
         savedSections.forEach((section, index) => {
+            const sectionId = `section-${index}`;
+
             // Main page content
             const sectionDiv = document.createElement("section");
             sectionDiv.style.backgroundColor = section.color;
-            sectionDiv.id = `section-${index}`;
+            sectionDiv.id = sectionId;
             sectionDiv.innerHTML = `
                 <h2>${section.title}</h2>
                 <p>${section.description}</p>
@@ -54,7 +67,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Navigation links
             const navItem = document.createElement("li");
-            navItem.innerHTML = `<a href="#section-${index}">${section.title}</a>`;
+            navItem.innerHTML = `<a href="#${sectionId}" class="nav-link">${section.title}</a>`;
+            navItem.addEventListener("click", (e) => {
+                e.preventDefault();
+                scrollToSection(sectionId);
+            });
             dynamicNav.appendChild(navItem);
 
             // Admin dashboard controls
