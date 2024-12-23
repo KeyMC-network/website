@@ -3,100 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>KeyMC Server</title>
     <style>
-        /* Stili generali */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f0f0f0;
         }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1, h2, h3 {
+        header {
+            background-color: #4CAF50;
+            padding: 15px;
             text-align: center;
+            color: white;
         }
-        .hidden {
+        .container {
+            margin: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        #admin-panel, #login-panel, #register-panel {
             display: none;
         }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
         button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 5px 0;
-            background-color: #007bff;
-            color: #fff;
+            padding: 10px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #0056b3;
-        }
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .logout {
-            float: right;
-            margin-top: 10px;
-        }
-        .section-card {
-            background: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 15px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div id="login-section" class="container">
-        <h1>Login Amministratore</h1>
-        <form id="login-form">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Inserisci il tuo username" required>
-            <label for="password">Password</label>
-            <div style="position: relative;">
-                <input type="password" id="password" placeholder="Inserisci la tua password" required>
-                <button type="button" id="toggle-password" style="position: absolute; right: 10px; top: 10px;">👁️</button>
-            </div>
-            <button type="submit">Login</button>
-        </form>
+    <header>
+        <h1>KeyMC Server</h1>
+    </header>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="login-panel">
+            <h2>Login</h2>
+            <input id="login-username" type="text" placeholder="Username"><br>
+            <input id="login-password" type="password" placeholder="Password"><br>
+            <button onclick="login()">Login</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-panel">
+            <h2>Register</h2>
+            <input id="register-username" type="text" placeholder="Username"><br>
+            <input id="register-email" type="email" placeholder="Email"><br>
+            <input id="register-password" type="password" placeholder="Password"><br>
+            <p class="error">* We do not store emails for any purpose.</p>
+            <button onclick="register()">Register</button>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="admin-panel">
+            <h2>Admin Panel</h2>
+            <button onclick="logout()">Logout</button><br><br>
+            <h3>Create Section</h3>
+            <input id="section-name" type="text" placeholder="Section Name"><br>
+            <select id="section-type">
+                <option value="display">Display</option>
+                <option value="forum">Forum</option>
+            </select><br>
+            <textarea id="section-description" placeholder="Description"></textarea><br>
+            <input id="section-color" type="color"><br>
+            <button onclick="createSection()">Create Section</button>
+            <h3>Sections</h3>
+            <div id="sections-list"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="main-content">
+            <h2>Sections</h2>
+            <div id="sections"></div>
+        </div>
     </div>
-
-    <div id="dashboard-section" class="container hidden">
-        <h1>Dashboard Amministratore</h1>
-        <button id="logout-button" class="logout">Logout</button>
-        <h2>Gestione delle Sezioni</h2>
-        <div id="dynamic-content"></div>
-
-        <h3>Crea una nuova sezione</h3>
-        <form id="section-form">
-            <label for="section-title">Titolo Sezione</label>
-            <input type="text" id="section-title" placeholder="Titolo della sezione" required>
-
-            <label for="section-content">Contenuto Sezione</label>
-            <textarea id="section-content" placeholder="Contenuto della sezione" rows="4" required></textarea>
-
-            <label for="section-color">Colore di Sfondo</label>
-            <input type="color" id="section-color" value="#ffffff">
-
-            <h4>Sotto-sezioni</h4>
-            <button type="button" id="add-subsection">Aggiungi Sotto-sezione</button>
-            <div id="subsections-container"></div>
-
-            <button type="submit">Salva Sezione</button>
-        </form>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>
