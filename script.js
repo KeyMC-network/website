@@ -5,6 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminLoginButton = document.getElementById("admin-login-button");
     const adminLoginForm = document.getElementById("admin-login-form");
     const logoutButton = document.getElementById("logout-button");
+    const togglePasswordButton = document.getElementById("toggle-password");
+    const passwordField = document.getElementById("password");
+    const staffSection = document.getElementById("staff-section");
+    const createStaffForm = document.getElementById("create-staff-form");
+    const staffList = document.getElementById("staff-ul");
+    const staffUsernameField = document.getElementById("staff-username");
+    const staffPasswordField = document.getElementById("staff-password");
     const backgroundForm = document.getElementById("background-form");
     const backgroundUpload = document.getElementById("background-upload");
     const heroImage = document.getElementById("hero-image");
@@ -14,12 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const addSubsectionButton = document.getElementById("add-subsection");
     const resetButton = document.createElement("button"); // Pulsante per resettare tutto
 
-    // CREDENZIALI ADMIN
-    const username = "ADMIN";
-    const password = "ADMIN1234";
+    // CREDENZIALI ADMIN PRINCIPALE
+    const masterUsername = "ADMIN";
+    const masterPassword = "ADMIN1234";
 
     // DATI SALVATI
     let savedSections = JSON.parse(localStorage.getItem("sections")) || [];
+    let savedAdmins = JSON.parse(localStorage.getItem("admins")) || [
+        { username: masterUsername, password: masterPassword },
+    ];
     const savedBackground = localStorage.getItem("heroBackground");
 
     // CARICA BACKGROUND HERO SALVATO (se esiste)
@@ -36,17 +46,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /**
+     * Toggle visibilità password
+     */
+    togglePasswordButton.addEventListener("click", () => {
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            togglePasswordButton.textContent = "🙈";
+        } else {
+            passwordField.type = "password";
+            togglePasswordButton.textContent = "👁️";
+        }
+    });
+
+    /**
      * Gestisce il login
      */
     adminLoginForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const inputUsername = document.getElementById("username").value;
-        const inputPassword = document.getElementById("password").value;
+        const inputPassword = passwordField.value;
 
-        if (inputUsername === username && inputPassword === password) {
+        // Controlla le credenziali
+        const matchedAdmin = savedAdmins.find(
+            (admin) => admin.username === inputUsername && admin.password === inputPassword
+        );
+
+        if (matchedAdmin) {
             loginForm.classList.add("hidden");
             dashboard.classList.remove("hidden");
-            alert("Login effettuato con successo! Benvenuto nella Admin Dashboard.");
+            alert(`Benvenuto, ${inputUsername}!`);
+
+            // Controlla se l'utente è l'admin principale
+            if (inputUsername !== masterUsername) {
+                staffSection.style.display = "none"; // Nasconde la gestione dello staff per gli altri admin
+            } else {
+                staffSection.style.display = "block"; // Mostra la gestione dello staff solo per l'admin principale
+            }
         } else {
             alert("Credenziali non valide. Riprova.");
         }
@@ -62,24 +97,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /**
-     * Cambia il background della sezione Hero
+     * Aggiunge un nuovo membro dello staff
      */
-    backgroundForm.addEventListener("submit", (e) => {
+    createStaffForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        const file = backgroundUpload.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const imageData = reader.result;
-                heroImage.src = imageData;
-                localStorage.setItem("heroBackground", imageData);
-                alert("Background aggiornato con successo!");
-            };
-            reader.readAsDataURL(file);
-        } else {
-            alert("Seleziona un'immagine da caricare.");
+        const newUsername = staffUsernameField.value.trim();
+        const newPassword = staffPasswordField.value.trim();
+
+        if (!newUsername || !newPassword) {
+            alert("Inserisci un username e una password validi.");
+            return;
         }
+
+        // Controlla se l'username esiste già
+        const existingAdmin = savedAdmins.find((admin) => admin.username === newUsername);
+        if (existingAdmin) {
+            alert("Questo username esiste già. Scegline un altro.");
+            return;
+        }
+
+        // Aggiungi il nuovo admin
+        savedAdmins.push({ username: newUsername, password: newPassword });
+        localStorage.setItem("admins", JSON.stringify(savedAdmins));
+
+        // Aggiorna la lista dello staff
+        updateStaffList();
+        createStaffForm.reset();
+        alert(`Admin "${newUsername}" creato con successo.`);
     });
+
+    /**
+     * Aggiorna la lista dello staff visualizzata
+     */
+    function updateStaffList() {
+        staffList.innerHTML = ""; // Svuota la lista
+        savedAdmins.forEach((admin) => {
+            const li = document.createElement("li");
+            li.textContent = admin.username;
+            staffList.appendChild(li);
+        });
+    }
+
+    /**
+     * Aggiorna la lista dello staff all'avvio
+     */
+    updateStaffList();
 
     /**
      * Renderizza tutte le sezioni salvate
@@ -87,25 +149,22 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderSections() {
         dynamicContent.innerHTML = ""; // Svuota il contenuto precedente
         savedSections.forEach((section, index) => {
-            // Controlla che i dati della sezione siano validi
-            if (!section || !section.title || !section.description) {
-                console.warn(`Sezione corrotta trovata e ignorata:`, section);
-                return; // Salta questa sezione
-            }
-
-            // Crea l'elemento HTML per la sezione valida
             const sectionDiv = document.createElement("div");
             sectionDiv.style.backgroundColor = section.color || "#ffffff";
             sectionDiv.innerHTML = `
                 <h2>${section.title}</h2>
                 <p>${section.description}</p>
                 <div>
-                    ${section.subsections?.map(sub => `
+                    ${section.subsections
+                        ?.map(
+                            (sub) => `
                         <div style="background-color:${sub.color || "#f4f4f4"}; margin:10px; padding:10px; border-radius:5px;">
                             <h3>${sub.title || "Senza Titolo"}</h3>
                             <p>${sub.description || "Nessuna descrizione"}</p>
                         </div>
-                    `).join("") || ""}
+                    `
+                        )
+                        .join("") || ""}
                 </div>
             `;
             dynamicContent.appendChild(sectionDiv);
@@ -133,110 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Tutte le sezioni sono state eliminate con successo.");
         }
     });
-
-    /**
-     * Aggiunge una nuova sotto-sezione
-     */
-    addSubsectionButton.addEventListener("click", () => {
-        const subsectionDiv = document.createElement("div");
-        subsectionDiv.innerHTML = `
-            <input type="text" class="sub-title" placeholder="Titolo Sotto-sezione">
-            <textarea class="sub-description" placeholder="Descrizione Sotto-sezione"></textarea>
-            <input type="color" class="sub-color">
-            <button type="button" class="remove-subsection">Rimuovi</button>
-        `;
-        subsectionDiv.querySelector(".remove-subsection").addEventListener("click", () => {
-            subsectionDiv.remove();
-        });
-        subsectionsContainer.appendChild(subsectionDiv);
-    });
-
-    /**
-     * Salva una nuova sezione
-     */
-    sectionForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const title = document.getElementById("section-title").value;
-        const description = document.getElementById("section-content").value;
-        const color = document.getElementById("section-color").value;
-
-        const subsections = Array.from(subsectionsContainer.children).map(sub => {
-            return {
-                title: sub.querySelector(".sub-title").value,
-                description: sub.querySelector(".sub-description").value,
-                color: sub.querySelector(".sub-color").value,
-            };
-        });
-
-        savedSections.push({ title, description, color, subsections });
-        localStorage.setItem("sections", JSON.stringify(savedSections));
-
-        renderSections();
-        sectionForm.reset();
-        subsectionsContainer.innerHTML = ""; // Resetta il contenitore delle sotto-sezioni
-        alert("Sezione creata con successo!");
-    });
-
-    /**
-     * Elimina una sezione specifica
-     */
-    function deleteSection(index) {
-        if (confirm("Sei sicuro di voler eliminare questa sezione?")) {
-            savedSections.splice(index, 1);
-            localStorage.setItem("sections", JSON.stringify(savedSections));
-            renderSections();
-            alert("Sezione eliminata con successo.");
-        }
-    }
-
-    /**
-     * Modifica una sezione specifica
-     */
-    function editSection(index) {
-        const section = savedSections[index];
-        document.getElementById("section-title").value = section.title;
-        document.getElementById("section-content").value = section.description;
-        document.getElementById("section-color").value = section.color;
-
-        subsectionsContainer.innerHTML = "";
-        section.subsections.forEach((sub) => {
-            const subsectionDiv = document.createElement("div");
-            subsectionDiv.innerHTML = `
-                <input type="text" class="sub-title" value="${sub.title}" placeholder="Titolo Sotto-sezione">
-                <textarea class="sub-description" placeholder="Descrizione Sotto-sezione">${sub.description}</textarea>
-                <input type="color" class="sub-color" value="${sub.color}">
-                <button type="button" class="remove-subsection">Rimuovi</button>
-            `;
-            subsectionDiv.querySelector(".remove-subsection").addEventListener("click", () => {
-                subsectionDiv.remove();
-            });
-            subsectionsContainer.appendChild(subsectionDiv);
-        });
-
-        sectionForm.onsubmit = (e) => {
-            e.preventDefault();
-            section.title = document.getElementById("section-title").value;
-            section.description = document.getElementById("section-content").value;
-            section.color = document.getElementById("section-color").value;
-
-            section.subsections = Array.from(subsectionsContainer.children).map((sub) => {
-                return {
-                    title: sub.querySelector(".sub-title").value,
-                    description: sub.querySelector(".sub-description").value,
-                    color: sub.querySelector(".sub-color").value,
-                };
-            });
-
-            savedSections[index] = section;
-            localStorage.setItem("sections", JSON.stringify(savedSections));
-
-            renderSections();
-            sectionForm.reset();
-            subsectionsContainer.innerHTML = "";
-            sectionForm.onsubmit = null; // Reset form submission handler
-            alert("Sezione aggiornata con successo!");
-        };
-    }
 
     // Renderizza le sezioni salvate all'avvio
     renderSections();
