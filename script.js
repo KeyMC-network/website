@@ -5,27 +5,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminLoginForm = document.getElementById("admin-login-form");
     const logoutButton = document.getElementById("logout-button");
     const dynamicContent = document.getElementById("dynamic-content");
+    const dynamicNav = document.getElementById("dynamic-nav");
     const sectionForm = document.getElementById("section-form");
     const sectionsList = document.getElementById("sections-list");
 
     const username = "ADMIN";
     const password = "ADMIN1234";
 
-    const savedSections = JSON.parse(localStorage.getItem("sections")) || [];
+    let savedSections = JSON.parse(localStorage.getItem("sections")) || [];
 
-    // Render saved sections
+    // Funzione per mostrare le sezioni nel sito principale e nella navigazione
     function renderSections() {
         dynamicContent.innerHTML = "";
+        dynamicNav.innerHTML = "";
+
         savedSections.forEach((section, index) => {
+            // Contenuto principale
             const sectionDiv = document.createElement("section");
-            sectionDiv.innerHTML = `<h2>${section.title}</h2><p>${section.content}</p>`;
+            sectionDiv.id = `section-${index}`;
+            sectionDiv.innerHTML = `
+                <h2>${section.title}</h2>
+                <p>${section.content}</p>
+                ${section.image ? `<img src="${section.image}" alt="Section Image" style="max-width:100%; border-radius:8px;">` : ""}
+            `;
             dynamicContent.appendChild(sectionDiv);
 
-            // Add to admin dashboard
+            // Navigazione
+            const navItem = document.createElement("li");
+            navItem.innerHTML = `<a href="#section-${index}">${section.title}</a>`;
+            dynamicNav.appendChild(navItem);
+
+            // Sezioni nella dashboard
             const adminSection = document.createElement("div");
             adminSection.innerHTML = `
                 <h3>${section.title}</h3>
-                <button onclick="deleteSection(${index})">Delete</button>`;
+                <button onclick="editSection(${index})">Edit</button>
+                <button onclick="deleteSection(${index})">Delete</button>
+            `;
             sectionsList.appendChild(adminSection);
         });
     }
@@ -60,8 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const title = document.getElementById("section-title").value;
         const content = document.getElementById("section-content").value;
+        const image = document.getElementById("section-image").value;
 
-        savedSections.push({ title, content });
+        savedSections.push({ title, content, image });
         localStorage.setItem("sections", JSON.stringify(savedSections));
 
         renderSections();
@@ -74,4 +91,29 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("sections", JSON.stringify(savedSections));
         renderSections();
     };
+
+    // Edit Section
+    window.editSection = (index) => {
+        const section = savedSections[index];
+        document.getElementById("section-title").value = section.title;
+        document.getElementById("section-content").value = section.content;
+        document.getElementById("section-image").value = section.image;
+
+        // Remove old section on save
+        sectionForm.onsubmit = (e) => {
+            e.preventDefault();
+            savedSections[index] = {
+                title: document.getElementById("section-title").value,
+                content: document.getElementById("section-content").value,
+                image: document.getElementById("section-image").value,
+            };
+            localStorage.setItem("sections", JSON.stringify(savedSections));
+            renderSections();
+            sectionForm.reset();
+            sectionForm.onsubmit = addSection;
+        };
+    };
+
+    // Add Section (default behavior)
+    const addSection = sectionForm.onsubmit;
 });
