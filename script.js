@@ -14,15 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let savedSections = JSON.parse(localStorage.getItem("sections")) || [];
 
-    // Funzione per mostrare le sezioni nel sito principale e nella navigazione
     function renderSections() {
         dynamicContent.innerHTML = "";
         dynamicNav.innerHTML = "";
 
         savedSections.forEach((section, index) => {
-            // Contenuto principale
             const sectionDiv = document.createElement("section");
-            sectionDiv.id = `section-${index}`;
+            sectionDiv.style.backgroundColor = section.color;
             sectionDiv.innerHTML = `
                 <h2>${section.title}</h2>
                 <p>${section.content}</p>
@@ -30,12 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             dynamicContent.appendChild(sectionDiv);
 
-            // Navigazione
             const navItem = document.createElement("li");
             navItem.innerHTML = `<a href="#section-${index}">${section.title}</a>`;
             dynamicNav.appendChild(navItem);
 
-            // Sezioni nella dashboard
             const adminSection = document.createElement("div");
             adminSection.innerHTML = `
                 <h3>${section.title}</h3>
@@ -48,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderSections();
 
-    // Admin Login
     adminLoginButton.addEventListener("click", (e) => {
         e.preventDefault();
         loginForm.classList.remove("hidden");
@@ -71,49 +66,71 @@ document.addEventListener("DOMContentLoaded", () => {
         dashboard.classList.add("hidden");
     });
 
-    // Add Section
     sectionForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const title = document.getElementById("section-title").value;
         const content = document.getElementById("section-content").value;
-        const image = document.getElementById("section-image").value;
+        const imageFile = document.getElementById("section-image").files[0];
+        const color = document.getElementById("section-color").value;
 
-        savedSections.push({ title, content, image });
-        localStorage.setItem("sections", JSON.stringify(savedSections));
+        const reader = new FileReader();
+        reader.onload = function () {
+            const image = imageFile ? reader.result : null;
+            savedSections.push({ title, content, image, color });
+            localStorage.setItem("sections", JSON.stringify(savedSections));
+            renderSections();
+        };
 
-        renderSections();
+        if (imageFile) {
+            reader.readAsDataURL(imageFile);
+        } else {
+            savedSections.push({ title, content, image: null, color });
+            localStorage.setItem("sections", JSON.stringify(savedSections));
+            renderSections();
+        }
+
         sectionForm.reset();
     });
 
-    // Delete Section
     window.deleteSection = (index) => {
         savedSections.splice(index, 1);
         localStorage.setItem("sections", JSON.stringify(savedSections));
         renderSections();
     };
 
-    // Edit Section
     window.editSection = (index) => {
         const section = savedSections[index];
         document.getElementById("section-title").value = section.title;
         document.getElementById("section-content").value = section.content;
-        document.getElementById("section-image").value = section.image;
+        document.getElementById("section-color").value = section.color;
 
-        // Remove old section on save
         sectionForm.onsubmit = (e) => {
             e.preventDefault();
-            savedSections[index] = {
-                title: document.getElementById("section-title").value,
-                content: document.getElementById("section-content").value,
-                image: document.getElementById("section-image").value,
+            const title = document.getElementById("section-title").value;
+            const content = document.getElementById("section-content").value;
+            const color = document.getElementById("section-color").value;
+            const imageFile = document.getElementById("section-image").files[0];
+
+            const reader = new FileReader();
+            reader.onload = function () {
+                const image = imageFile ? reader.result : section.image;
+                savedSections[index] = { title, content, image, color };
+                localStorage.setItem("sections", JSON.stringify(savedSections));
+                renderSections();
             };
-            localStorage.setItem("sections", JSON.stringify(savedSections));
-            renderSections();
+
+            if (imageFile) {
+                reader.readAsDataURL(imageFile);
+            } else {
+                savedSections[index] = { title, content, image: section.image, color };
+                localStorage.setItem("sections", JSON.stringify(savedSections));
+                renderSections();
+            }
+
             sectionForm.reset();
-            sectionForm.onsubmit = addSection;
+            sectionForm.onsubmit = sectionFormDefault;
         };
     };
 
-    // Add Section (default behavior)
-    const addSection = sectionForm.onsubmit;
+    const sectionFormDefault = sectionForm.onsubmit;
 });
