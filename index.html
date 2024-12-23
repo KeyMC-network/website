@@ -6,25 +6,30 @@
     <meta name="description" content="KeyMC - Your ultimate Minecraft server with dynamic content and customization.">
     <meta name="author" content="KeyMC Development Team">
     <title>KeyMC - Minecraft Server</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Admin Login Button -->
+    <!-- Questo pulsante consente di aprire il modulo di login per accedere all'Admin Dashboard -->
     <a href="#" class="admin-button" id="admin-login-button">⚙️ Admin Panel</a>
 
     <!-- Hero Section -->
+    <!-- La sezione Hero è la prima che appare sul sito ed è personalizzabile -->
     <section id="hero">
         <div class="container" id="hero-container">
+            <!-- L'immagine di default per la Hero Section -->
             <img src="0EC0D36C-1536-408D-A840-01C43CA73056.jpeg" alt="KeyMC Hero Image" id="hero-image" style="width: 100%; height: auto; border-radius: 8px;">
         </div>
     </section>
 
     <!-- Dynamic Content Sections Placeholder -->
+    <!-- Questa sezione contiene le sezioni dinamiche create tramite l'Admin Dashboard -->
     <section id="dynamic-content">
-        <!-- Sections dynamically managed by admin -->
-        <p>Use the admin dashboard to create sections dynamically!</p>
+        <p>Welcome to KeyMC! Use the admin dashboard to create new sections dynamically.</p>
     </section>
 
     <!-- Footer Section -->
+    <!-- Il footer del sito, visibile in fondo a ogni pagina -->
     <footer>
         <div class="container">
             <p>&copy; 2024 KeyMC. Built with passion and dedication by the KeyMC Team.</p>
@@ -32,6 +37,7 @@
     </footer>
 
     <!-- Admin Login Modal -->
+    <!-- Modulo di login nascosto inizialmente -->
     <div class="login-container hidden" id="login-form">
         <h1>Admin Login</h1>
         <form id="admin-login-form">
@@ -44,14 +50,17 @@
     </div>
 
     <!-- Admin Dashboard Section -->
+    <!-- La Dashboard Admin è visibile solo dopo aver effettuato il login -->
     <div class="dashboard hidden" id="dashboard">
         <h1>Admin Dashboard</h1>
-        <p>Welcome to the KeyMC admin panel! Use this interface to manage your content dynamically.</p>
+        <p>Manage your server's content dynamically using this panel.</p>
 
         <!-- Logout Button -->
+        <!-- Permette di effettuare il logout dall'Admin Dashboard -->
         <button id="logout-button">Logout</button>
 
         <!-- Form to Change Hero Background -->
+        <!-- Permette di cambiare l'immagine di sfondo della Hero Section -->
         <form id="background-form">
             <h2>Change Hero Background</h2>
             <input type="file" id="background-upload" accept="image/*">
@@ -59,35 +68,35 @@
         </form>
 
         <!-- Form to Add or Edit Sections -->
+        <!-- Questo modulo consente di creare o modificare sezioni dinamiche -->
         <form id="section-form">
             <h2>Create or Edit Section</h2>
             <label for="section-title">Section Title:</label>
-            <input type="text" id="section-title" placeholder="Section Title" required>
-            
+            <input type="text" id="section-title" placeholder="Enter section title" required>
+
             <label for="section-content">Section Description:</label>
-            <textarea id="section-content" placeholder="Section Description" required></textarea>
-            
+            <textarea id="section-content" placeholder="Enter section description" required></textarea>
+
             <label for="section-color">Section Background Color:</label>
             <input type="color" id="section-color" value="#ffffff">
 
             <h3>Sub-Sections</h3>
-            <div id="subsections-container">
-                <!-- Sub-sections dynamically added -->
-            </div>
+            <div id="subsections-container"></div>
             <button type="button" id="add-subsection">Add Sub-Section</button>
-            
+
             <button type="submit">Save Section</button>
         </form>
 
-        <!-- Display Existing Sections -->
+        <!-- List of Existing Sections -->
+        <!-- Elenco delle sezioni già create, con opzioni per modificarle o eliminarle -->
         <div id="sections-list">
             <h2>Manage Existing Sections</h2>
-            <p>Below are the sections you've created. Use the buttons to edit or delete them.</p>
-            <!-- Existing sections dynamically rendered -->
+            <p>View, edit, or delete the sections you have created below:</p>
         </div>
     </div>
 
-    <!-- Script -->
+    <!-- External JavaScript -->
+    <!-- Integrazione dello script esterno per gestire tutte le funzionalità -->
     <script src="script.js"></script>
 </body>
 </html>
