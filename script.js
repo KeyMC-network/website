@@ -19,9 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const sectionForm = document.getElementById("section-form");
     const subsectionsContainer = document.getElementById("subsections-container");
     const addSubsectionButton = document.getElementById("add-subsection");
-    const resetButton = document.createElement("button"); // Pulsante per resettare tutto
+    const resetButton = document.createElement("button");
 
-    // CREDENZIALI ADMIN PRINCIPALE
+    // ADMIN PRINCIPALE
     const masterUsername = "ADMIN";
     const masterPassword = "ADMIN1234";
 
@@ -32,13 +32,13 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     const savedBackground = localStorage.getItem("heroBackground");
 
-    // CARICA BACKGROUND HERO SALVATO (se esiste)
+    // CARICA BACKGROUND HERO SALVATO
     if (savedBackground) {
         heroImage.src = savedBackground;
     }
 
     /**
-     * Mostra il modulo di login e nasconde la dashboard
+     * Mostra il modulo di login
      */
     adminLoginButton.addEventListener("click", () => {
         loginForm.classList.remove("hidden");
@@ -76,11 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
             dashboard.classList.remove("hidden");
             alert(`Benvenuto, ${inputUsername}!`);
 
-            // Controlla se l'utente è l'admin principale
+            // Mostra/nasconde la sezione staff in base al ruolo
             if (inputUsername !== masterUsername) {
-                staffSection.style.display = "none"; // Nasconde la gestione dello staff per gli altri admin
+                staffSection.style.display = "none";
             } else {
-                staffSection.style.display = "block"; // Mostra la gestione dello staff solo per l'admin principale
+                staffSection.style.display = "block";
             }
         } else {
             alert("Credenziali non valide. Riprova.");
@@ -88,16 +88,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /**
-     * Gestisce il logout
+     * Logout admin
      */
     logoutButton.addEventListener("click", () => {
         dashboard.classList.add("hidden");
-        loginForm.classList.add("hidden");
+        loginForm.classList.remove("hidden");
         alert("Hai effettuato il logout.");
     });
 
     /**
-     * Aggiunge un nuovo membro dello staff
+     * Creazione nuovo admin
      */
     createStaffForm.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -109,28 +109,24 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Controlla se l'username esiste già
         const existingAdmin = savedAdmins.find((admin) => admin.username === newUsername);
         if (existingAdmin) {
             alert("Questo username esiste già. Scegline un altro.");
             return;
         }
 
-        // Aggiungi il nuovo admin
         savedAdmins.push({ username: newUsername, password: newPassword });
         localStorage.setItem("admins", JSON.stringify(savedAdmins));
-
-        // Aggiorna la lista dello staff
         updateStaffList();
         createStaffForm.reset();
         alert(`Admin "${newUsername}" creato con successo.`);
     });
 
     /**
-     * Aggiorna la lista dello staff visualizzata
+     * Aggiorna lista staff
      */
     function updateStaffList() {
-        staffList.innerHTML = ""; // Svuota la lista
+        staffList.innerHTML = "";
         savedAdmins.forEach((admin) => {
             const li = document.createElement("li");
             li.textContent = admin.username;
@@ -138,16 +134,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /**
-     * Aggiorna la lista dello staff all'avvio
-     */
     updateStaffList();
 
     /**
-     * Renderizza tutte le sezioni salvate
+     * Renderizza sezioni salvate
      */
     function renderSections() {
-        dynamicContent.innerHTML = ""; // Svuota il contenuto precedente
+        dynamicContent.innerHTML = "";
         savedSections.forEach((section, index) => {
             const sectionDiv = document.createElement("div");
             sectionDiv.style.backgroundColor = section.color || "#ffffff";
@@ -155,16 +148,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h2>${section.title}</h2>
                 <p>${section.description}</p>
                 <div>
-                    ${section.subsections
-                        ?.map(
-                            (sub) => `
+                    ${
+                        section.subsections
+                            ?.map(
+                                (sub) => `
                         <div style="background-color:${sub.color || "#f4f4f4"}; margin:10px; padding:10px; border-radius:5px;">
                             <h3>${sub.title || "Senza Titolo"}</h3>
                             <p>${sub.description || "Nessuna descrizione"}</p>
                         </div>
                     `
-                        )
-                        .join("") || ""}
+                            )
+                            .join("") || ""
+                    }
                 </div>
             `;
             dynamicContent.appendChild(sectionDiv);
@@ -172,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * Pulsante di reset per cancellare tutte le sezioni
+     * Resetta tutte le sezioni
      */
     resetButton.textContent = "Reset All Sections";
     resetButton.style.backgroundColor = "#ff4d4d";
@@ -187,8 +182,8 @@ document.addEventListener("DOMContentLoaded", () => {
     resetButton.addEventListener("click", () => {
         if (confirm("Sei sicuro di voler eliminare tutte le sezioni salvate?")) {
             savedSections = [];
-            localStorage.clear(); // Pulisce tutto il localStorage, incluse le sezioni vecchie
-            renderSections(); // Aggiorna il contenuto dinamico
+            localStorage.removeItem("sections");
+            renderSections();
             alert("Tutte le sezioni sono state eliminate con successo.");
         }
     });
@@ -219,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const description = document.getElementById("section-content").value;
         const color = document.getElementById("section-color").value;
 
-        const subsections = Array.from(subsectionsContainer.children).map(sub => {
+        const subsections = Array.from(subsectionsContainer.children).map((sub) => {
             return {
                 title: sub.querySelector(".sub-title").value,
                 description: sub.querySelector(".sub-description").value,
@@ -232,10 +227,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderSections();
         sectionForm.reset();
-        subsectionsContainer.innerHTML = ""; // Resetta il contenitore delle sotto-sezioni
+        subsectionsContainer.innerHTML = "";
         alert("Sezione creata con successo!");
     });
 
-    // Renderizza le sezioni salvate all'avvio
     renderSections();
 });
