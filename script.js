@@ -66,9 +66,88 @@ const positions = {
       "How would you promote events to maximize player participation?",
     ],
   },
+  configurator: {
+    title: "Configurator Application",
+    questions: [
+      "Discord ID",
+      "Minecraft Username",
+      "Age",
+      "Country",
+      "Local Time",
+      "Why do you want to be a Configurator?",
+      "What experience do you have with setting up and configuring Minecraft plugins?",
+      "How would you handle a plugin causing issues in-game?",
+      "What qualities do you think are important for a Configurator?",
+      "How much time can you dedicate to the server each week?",
+    ],
+  },
 };
 
-// Funzione per inviare un'applicazione al webhook Discord
+document.getElementById("applyNowBtn").onclick = () => {
+  document.getElementById("formContainer").style.display = "block";
+  document.getElementById("applicationContainer").style.display = "none";
+};
+
+document.getElementById("staffLoginBtn").onclick = () => {
+  document.getElementById("loginContainer").style.display = "block";
+};
+
+document.getElementById("loginForm").onsubmit = (e) => {
+  e.preventDefault();
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const user = staff.find((s) => s.username === username && s.password === password);
+  if (user) {
+    currentUser = user;
+    document.getElementById("loginContainer").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    showStatus("Logged in successfully!", "success");
+    viewApplications();
+  } else {
+    showStatus("Invalid credentials!", "error");
+  }
+};
+
+function loadForm(position) {
+  const positionData = positions[position];
+  document.getElementById("formContainer").style.display = "none";
+  document.getElementById("applicationContainer").style.display = "block";
+
+  document.getElementById("applicationContainer").innerHTML = `
+    <h2>${positionData.title}</h2>
+    <form id="applicationForm">
+      ${positionData.questions
+        .map(
+          (q) => `
+        <div class="form-field">
+          <label>${q}</label>
+          <textarea required></textarea>
+        </div>`
+        )
+        .join("")}
+      <button type="submit" class="button">Submit</button>
+    </form>
+  `;
+
+  document.getElementById("applicationForm").onsubmit = (e) => {
+    e.preventDefault();
+    const answers = Array.from(e.target.querySelectorAll("textarea")).map((input) => input.value);
+    const applicationID = `APP-${Date.now()}`;
+    const applicationLink = `${baseURL}?app=${applicationID}`;
+    const newApplication = { id: applicationID, position, answers, status: "Pending", link: applicationLink };
+    applications.push(newApplication);
+    localStorage.setItem("applications", JSON.stringify(applications));
+
+    sendWebhook(applicationID, position, answers, applicationLink);
+
+    document.getElementById("applicationContainer").style.display = "none";
+    showStatus(
+      "Application submitted successfully! The staff will contact you on Discord if your application is accepted.",
+      "success"
+    );
+  };
+}
+
 function sendWebhook(applicationID, position, answers, link) {
   const data = {
     content: null,
@@ -93,30 +172,15 @@ function sendWebhook(applicationID, position, answers, link) {
   }).catch((error) => console.error("Error sending webhook:", error));
 }
 
-// Mostra il modulo di login
-document.getElementById("staffLoginBtn").onclick = () => {
-  document.getElementById("loginContainer").style.display = "block";
-};
+function showStatus(message, type) {
+  const statusMessage = document.getElementById("statusMessage");
+  statusMessage.textContent = message;
+  statusMessage.className = `status-message ${type}`;
+  setTimeout(() => {
+    statusMessage.textContent = "";
+  }, 5000);
+}
 
-// Gestisce il login dello staff
-document.getElementById("loginForm").onsubmit = (e) => {
-  e.preventDefault();
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-
-  const user = staff.find((s) => s.username === username && s.password === password);
-  if (user) {
-    currentUser = user;
-    document.getElementById("loginContainer").style.display = "none";
-    document.getElementById("adminPanel").style.display = "block";
-    showStatus("Logged in successfully!", "success");
-    viewApplications();
-  } else {
-    showStatus("Invalid credentials!", "error");
-  }
-};
-
-// Visualizza tutte le applicazioni
 function viewApplications() {
   document.getElementById("adminContent").innerHTML = `
     <table class="admin-table">
@@ -144,7 +208,6 @@ function viewApplications() {
   `;
 }
 
-// Aggiorna lo stato di un'applicazione
 function updateStatus(applicationID, newStatus) {
   const application = applications.find((app) => app.id === applicationID);
   if (application) {
@@ -154,23 +217,6 @@ function updateStatus(applicationID, newStatus) {
   }
 }
 
-// Salva una nuova applicazione
-function submitApplication(position) {
-  const positionData = positions[position];
-  const answers = Array.from(document.querySelectorAll("textarea")).map((input) => input.value);
-  const applicationID = `APP-${Date.now()}`;
-  const applicationLink = `${baseURL}?app=${applicationID}`;
-
-  const newApplication = { id: applicationID, position, answers, status: "Pending", link: applicationLink };
-  applications.push(newApplication);
-  localStorage.setItem("applications", JSON.stringify(applications));
-
-  sendWebhook(applicationID, position, answers, applicationLink);
-
-  showStatus("Application submitted successfully!", "success");
-}
-
-// Carica un'applicazione specifica dalla URL
 function loadApplicationFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
   const appID = urlParams.get("app");
@@ -196,15 +242,4 @@ function loadApplicationFromURL() {
   }
 }
 
-// Mostra un messaggio di stato
-function showStatus(message, type) {
-  const statusMessage = document.getElementById("statusMessage");
-  statusMessage.textContent = message;
-  statusMessage.className = `status-message ${type}`;
-  setTimeout(() => {
-    statusMessage.textContent = "";
-  }, 5000);
-}
-
-// Inizializza la pagina
 loadApplicationFromURL();
