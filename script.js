@@ -3,6 +3,7 @@ let staff = [{ username: "Admin", password: "Pollo9.0ll" }];
 let currentUser = null;
 
 const webhookURL = "https://discord.com/api/webhooks/1322909591130083422/v1EjWclv8RjiREgV0sWBBD5l84yIGDi0FWYepEA136C3Ku0phnuUBjl5rAj7BuMx0_qD";
+const baseURL = window.location.origin; // Base URL per generare link unici
 
 const positions = {
   helper: {
@@ -101,6 +102,7 @@ document.getElementById("loginForm").onsubmit = (e) => {
     document.getElementById("loginContainer").style.display = "none";
     document.getElementById("adminPanel").style.display = "block";
     showStatus("Logged in successfully!", "success");
+    viewApplications();
   } else {
     showStatus("Invalid credentials!", "error");
   }
@@ -131,11 +133,12 @@ function loadForm(position) {
     e.preventDefault();
     const answers = Array.from(e.target.querySelectorAll("textarea")).map((input) => input.value);
     const applicationID = `APP-${Date.now()}`;
-    const newApplication = { id: applicationID, position, answers, status: "Pending" };
+    const applicationLink = `${baseURL}?app=${applicationID}`;
+    const newApplication = { id: applicationID, position, answers, status: "Pending", link: applicationLink };
     applications.push(newApplication);
     localStorage.setItem("applications", JSON.stringify(applications));
 
-    sendWebhook(applicationID, position, answers);
+    sendWebhook(applicationID, position, answers, applicationLink);
 
     document.getElementById("applicationContainer").style.display = "none";
     showStatus(
@@ -145,16 +148,13 @@ function loadForm(position) {
   };
 }
 
-function sendWebhook(applicationID, position, answers) {
+function sendWebhook(applicationID, position, answers, link) {
   const data = {
     content: null,
     embeds: [
       {
-        title: "
-
-```javascript
         title: "New Staff Application",
-        description: `**Position**: ${positions[position].title}\n**ID**: ${applicationID}`,
+        description: `**Position**: ${positions[position].title}\n**ID**: ${applicationID}\n[View Application](${link})`,
         color: 3447003,
         fields: answers.map((answer, index) => ({
           name: positions[position].questions[index],
@@ -194,7 +194,7 @@ function viewApplications() {
         .map(
           (app) => `
       <tr>
-        <td><a href="#" onclick="viewApplication('${app.id}')">${app.id}</a></td>
+        <td><a href="${app.link}" target="_blank">${app.id}</a></td>
         <td>${positions[app.position].title}</td>
         <td class="${app.status.toLowerCase()}">${app.status}</td>
         <td>
@@ -208,35 +208,11 @@ function viewApplications() {
   `;
 }
 
-function viewApplication(applicationID) {
-  const application = applications.find((app) => app.id === applicationID);
-  if (application) {
-    document.getElementById("adminContent").innerHTML = `
-      <h2>Application Details</h2>
-      <p><strong>Application ID:</strong> ${applicationID}</p>
-      <p><strong>Position:</strong> ${positions[application.position].title}</p>
-      ${application.answers
-        .map((answer, index) => `<p><strong>${positions[application.position].questions[index]}:</strong> ${answer}</p>`)
-        .join("")}
-      <button onclick="viewApplications()">Back to Applications</button>
-    `;
-  }
-}
-
 function updateStatus(applicationID, newStatus) {
   const application = applications.find((app) => app.id === applicationID);
   if (application) {
     application.status = newStatus;
     localStorage.setItem("applications", JSON.stringify(applications));
     viewApplications();
-  }
-}
-
-function addStaff() {
-  const username = prompt("Enter new staff username:");
-  const password = prompt("Enter new staff password:");
-  if (username && password) {
-    staff.push({ username, password });
-    showStatus(`Staff member "${username}" added successfully!`, "success");
   }
 }
