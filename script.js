@@ -1,5 +1,7 @@
 let applications = JSON.parse(localStorage.getItem("applications")) || [];
 let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll", isAdmin: true }];
+let clet applications = JSON.parse(localStorage.getItem("applications")) || [];
+let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll", isAdmin: true }];
 let currentUser = null;
 
 const webhookURL = "https://discord.com/api/webhooks/1322909591130083422/v1EjWclv8RjiREgV0sWBBD5l84yIGDi0FWYepEA136C3Ku0phnuUBjl5rAj7BuMx0_qD";
@@ -96,7 +98,7 @@ document.getElementById("loginForm").onsubmit = (e) => {
   e.preventDefault();
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
-  
+
   const user = staff.find((s) => s.username === username && s.password === password);
 
   if (user) {
@@ -180,7 +182,7 @@ function showStatus(message, type) {
 function viewApplications() {
   document.getElementById("adminContent").innerHTML = `
     ${currentUser.isAdmin ? `<button class="button" onclick="showAddStaffForm()">Add Staff</button>` : ""}
-    <button class="button" onclick="showStaff()">Show Staff</button>
+    ${currentUser.isAdmin ? `<button class="button" onclick="showStaff()">Show Staff</button>` : ""}
     <table class="admin-table">
       <tr>
         <th>Application ID</th>
@@ -247,6 +249,11 @@ function showAddStaffForm() {
 }
 
 function showStaff() {
+  if (!currentUser.isAdmin) {
+    showStatus("You do not have permission to view staff members!", "error");
+    return;
+  }
+
   document.getElementById("applicationDetails").innerHTML = `
     <h2>Staff Members</h2>
     <ul id="staffList">
