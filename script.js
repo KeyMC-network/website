@@ -94,17 +94,19 @@ document.getElementById("staffLoginBtn").onclick = () => {
 
 document.getElementById("loginForm").onsubmit = (e) => {
   e.preventDefault();
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  
   const user = staff.find((s) => s.username === username && s.password === password);
+
   if (user) {
     currentUser = user;
     document.getElementById("loginContainer").style.display = "none";
     document.getElementById("adminPanel").style.display = "block";
-    showStatus("Logged in successfully!", "success");
+    showStatus(`Welcome, ${user.username}!`, "success");
     viewApplications();
   } else {
-    showStatus("Invalid credentials!", "error");
+    showStatus("Invalid credentials! Please try again.", "error");
   }
 };
 
