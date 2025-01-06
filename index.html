@@ -1,99 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KeyMC Server</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-        }
-        header {
-            background-color: #4CAF50;
-            padding: 15px;
-            text-align: center;
-            color: white;
-        }
-        .container {
-            margin: 20px;
-        }
-        .section {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: white;
-        }
-        #admin-panel, #login-panel, #register-panel {
-            display: none;
-        }
-        .error {
-            color: red;
-            font-size: 0.9em;
-        }
-        button {
-            padding: 10px;
-            margin: 5px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KeyMc Forum</title>
+  <style>
+    /* General body styling */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-image: url('https://i.imgur.com/DI7sYVD.jpg'); /* Minecraft-like texture */
+      background-size: cover;
+      background-attachment: fixed;
+      color: #b3e6ff;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(90deg, #005f73, #0a9396);
+      padding: 20px;
+      text-align: center;
+      color: white;
+      text-shadow: 2px 2px 5px #000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+
+    /* Navigation bar */
+    nav {
+      background-color: #004050;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    nav .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      margin-right: 15px;
+      transition: color 0.3s ease-in-out;
+    }
+
+    nav .nav-links a:hover {
+      color: #00bcd4;
+    }
+
+    .logout-btn {
+      background-color: #ff4d4d;
+      padding: 8px 15px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease-in-out;
+    }
+
+    .logout-btn:hover {
+      background-color: #ff3333;
+    }
+
+    /* Containers */
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(44, 62, 80, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Cards (forums, posts, replies) */
+    .card {
+      background: rgba(59, 75, 90, 0.9);
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Buttons */
+    .btn {
+      background: linear-gradient(90deg, #007a99, #00bcd4);
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out, background 0.3s ease-in-out;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #0097a7, #00e5ff);
+    }
+
+    /* Input fields */
+    input, textarea {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #006060;
+      border-radius: 5px;
+      background: rgba(40, 62, 74, 0.9);
+      color: white;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #00bcd4;
+    }
+
+    /* Profile Section */
+    .profile img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile p {
+      font-size: 1.2rem;
+      color: #b3e6ff;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>KeyMC Server</h1>
-    </header>
-    <div class="container">
-        <!-- Login Form -->
-        <div id="login-panel">
-            <h2>Login</h2>
-            <input id="login-username" type="text" placeholder="Username"><br>
-            <input id="login-password" type="password" placeholder="Password"><br>
-            <button onclick="login()">Login</button>
-        </div>
+  <header>
+    <h1>KeyMc Forum</h1>
+  </header>
 
-        <!-- Register Form -->
-        <div id="register-panel">
-            <h2>Register</h2>
-            <input id="register-username" type="text" placeholder="Username"><br>
-            <input id="register-email" type="email" placeholder="Email"><br>
-            <input id="register-password" type="password" placeholder="Password"><br>
-            <p class="error">* We do not store emails for any purpose.</p>
-            <button onclick="register()">Register</button>
-        </div>
-
-        <!-- Admin Panel -->
-        <div id="admin-panel">
-            <h2>Admin Panel</h2>
-            <button onclick="logout()">Logout</button><br><br>
-            <h3>Create Section</h3>
-            <input id="section-name" type="text" placeholder="Section Name"><br>
-            <select id="section-type">
-                <option value="display">Display</option>
-                <option value="forum">Forum</option>
-            </select><br>
-            <textarea id="section-description" placeholder="Description"></textarea><br>
-            <input id="section-color" type="color"><br>
-            <button onclick="createSection()">Create Section</button>
-            <h3>Sections</h3>
-            <div id="sections-list"></div>
-        </div>
-
-        <!-- Main Content -->
-        <div id="main-content">
-            <h2>Sections</h2>
-            <div id="sections"></div>
-        </div>
+  <nav>
+    <div class="nav-links">
+      <a href="#" onclick="showHome()">Home</a>
+      <a href="#" onclick="showProfile()">Profile</a>
+      <a href="#" onclick="showNotifications()">Notifications</a>
     </div>
-    <script src="script.js"></script>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </nav>
+
+  <div id="app">
+    <!-- # AUTHENTICATION SCREEN -->
+    <div id="auth-screen" class="container">
+      <div id="register-section">
+        <h2>Register</h2>
+        <input type="text" id="reg-username" placeholder="Username">
+        <input type="email" id="reg-email" placeholder="Email">
+        <input type="password" id="reg-password" placeholder="Password">
+        <input type="password" id="reg-confirm-password" placeholder="Confirm Password">
+        <button class="btn" onclick="registerUser()">Register</button>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+      </div>
+      <div id="login-section" class="hidden">
+        <h2>Login</h2>
+        <input type="text" id="login-username" placeholder="Username">
+        <input type="password" id="login-password" placeholder="Password">
+        <button class="btn" onclick="loginUser()">Login</button>
+        <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+      </div>
+    </div>
+
+    <!-- # ADMIN DASHBOARD -->
+    <div id="admin-dashboard" class="hidden container">
+      <h2>Admin Dashboard</h2>
+      <button class="btn" onclick="createCategory()">Create Category</button>
+      <button class="btn" onclick="createForum()">Create Forum</button>
+      <button class="btn" onclick="createRole()">Create Role</button>
+      <button class="btn" onclick="manageTags()">Manage Tags</button>
+      <div id="admin-output"></div>
+    </div>
+
+    <!-- # MODERATOR DASHBOARD -->
+    <div id="moderator-dashboard" class="hidden container">
+      <h2>Moderator Dashboard</h2>
+      <button class="btn" onclick="banUser()">Ban User</button>
+      <button class="btn" onclick="closePost()">Close Post</button>
+      <div id="moderator-output"></div>
+    </div>
+
+    <!-- # FORUM SCREEN -->
+    <div id="forum-screen" class="hidden container">
+      <h2>Welcome to KeyMc Forum</h2>
+      <input type="text" id="search-bar" placeholder="Search posts..." onkeyup="searchPosts()">
+      <div id="categories"></div>
+    </div>
+
+    <!-- # POST SCREEN -->
+    <div id="post-screen" class="hidden container">
+      <button class="btn" onclick="returnToForum()">Back to Forum</button>
+      <h2 id="post-title"></h2>
+      <p id="post-content"></p>
+      <div id="post-replies"></div>
+      <textarea id="reply-input" placeholder="Write your reply here"></textarea>
+      <button class="btn" onclick="addReply()">Reply</button>
+    </div>
+
+    <!-- # PROFILE SCREEN -->
+    <div id="profile-screen" class="hidden container">
+      <h2>Your Profile</h2>
+      <div class="profile">
+        <img id="profile-picture" src="default-avatar.png" alt="Profile Picture">
+        <p><strong>Username:</strong> <span id="profile-username"></span></p>
+        <p><strong>Display Name:</strong> <span id="display-name"></span></p>
+        <input type="file" id="upload-avatar" onchange="updateProfilePicture()">
+        <input type="text" id="update-display-name" placeholder="New Display Name">
+        <button class="btn" onclick="saveProfile()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
