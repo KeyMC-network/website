@@ -1,10 +1,14 @@
 let applications = JSON.parse(localStorage.getItem("applications")) || [];
-let staff = [{ username: "Admin", password: "Pollo9.0ll" }];
+let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll" }];
 let currentUser = null;
 
 const webhookURL = "https://discord.com/api/webhooks/1322909591130083422/v1EjWclv8RjiREgV0sWBBD5l84yIGDi0FWYepEA136C3Ku0phnuUBjl5rAj7BuMx0_qD";
-const baseURL = window.location.origin; // Base URL per generare link unici
+const baseURL = window.location.origin;
 
+// Variabili CAPTCHA
+let captchaValue = "";
+
+// Posizioni disponibili
 const positions = {
   helper: {
     title: "Helper Application",
@@ -83,19 +87,54 @@ const positions = {
   },
 };
 
-document.getElementById("applyNowBtn").onclick = () => {
-  document.getElementById("formContainer").style.display = "block";
-  document.getElementById("applicationContainer").style.display = "none";
-};
+// Genera un CAPTCHA visivo
+function generateCaptcha() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  captchaValue = Array.from({ length: 6 }, () =>
+    characters.charAt(Math.floor(Math.random() * characters.length))
+  ).join("");
 
+  const canvas = document.getElementById("captchaCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = "30px Arial";
+  ctx.fillStyle = "#4f46e5"; // Colore principale
+  ctx.fillText(captchaValue, 10, 40);
+
+  // Linee casuali per decorare
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath();
+    ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+    ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+    ctx.strokeStyle = "#3b82f6"; // Colore decorativo
+    ctx.stroke();
+  }
+}
+
+// Verifica il CAPTCHA
+function validateCaptcha(input) {
+  return input === captchaValue;
+}
+
+// Mostra il modulo di login
 document.getElementById("staffLoginBtn").onclick = () => {
   document.getElementById("loginContainer").style.display = "block";
+  generateCaptcha();
 };
 
+// Gestisce il login dello staff
 document.getElementById("loginForm").onsubmit = (e) => {
   e.preventDefault();
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
+  const captchaInput = document.getElementById("captchaInput").value;
+
+  if (!validateCaptcha(captchaInput)) {
+    showStatus("Invalid CAPTCHA!", "error");
+    generateCaptcha();
+    return;
+  }
+
   const user = staff.find((s) => s.username === username && s.password === password);
   if (user) {
     currentUser = user;
@@ -108,79 +147,18 @@ document.getElementById("loginForm").onsubmit = (e) => {
   }
 };
 
-function loadForm(position) {
-  const positionData = positions[position];
-  document.getElementById("formContainer").style.display = "none";
-  document.getElementById("applicationContainer").style.display = "block";
-
-  document.getElementById("applicationContainer").innerHTML = `
-    <h2>${positionData.title}</h2>
-    <form id="applicationForm">
-      ${positionData.questions
-        .map(
-          (q) => `
-        <div class="form-field">
-          <label>${q}</label>
-          <textarea required></textarea>
-        </div>`
-        )
-        .join("")}
-      <button type="submit" class="button">Submit</button>
-    </form>
-  `;
-
-  document.getElementById("applicationForm").onsubmit = (e) => {
-    e.preventDefault();
-    const answers = Array.from(e.target.querySelectorAll("textarea")).map((input) => input.value);
-    const applicationID = `APP-${Date.now()}`;
-    const applicationLink = `${baseURL}?app=${applicationID}`;
-    const newApplication = { id: applicationID, position, answers, status: "Pending", link: applicationLink };
-    applications.push(newApplication);
-    localStorage.setItem("applications", JSON.stringify(applications));
-
-    sendWebhook(applicationID, position, answers, applicationLink);
-
-    document.getElementById("applicationContainer").style.display = "none";
-    showStatus(
-      "Application submitted successfully! The staff will contact you on Discord if your application is accepted.",
-      "success"
-    );
-  };
+// Aggiunge un nuovo membro dello staff
+function addStaff() {
+  const username = prompt("Enter new staff username:");
+  const password = prompt("Enter new staff password:");
+  if (username && password) {
+    staff.push({ username, password });
+    localStorage.setItem("staff", JSON.stringify(staff));
+    showStatus(`Staff member "${username}" added successfully!`, "success");
+  }
 }
 
-function sendWebhook(applicationID, position, answers, link) {
-  const data = {
-    content: null,
-    embeds: [
-      {
-        title: "New Staff Application",
-        description: `**Position**: ${positions[position].title}\n**ID**: ${applicationID}\n[View Application](${link})`,
-        color: 3447003,
-        fields: answers.map((answer, index) => ({
-          name: positions[position].questions[index],
-          value: answer || "N/A",
-        })),
-        timestamp: new Date().toISOString(),
-      },
-    ],
-  };
-
-  fetch(webhookURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  }).catch((error) => console.error("Error sending webhook:", error));
-}
-
-function showStatus(message, type) {
-  const statusMessage = document.getElementById("statusMessage");
-  statusMessage.textContent = message;
-  statusMessage.className = `status-message ${type}`;
-  setTimeout(() => {
-    statusMessage.textContent = "";
-  }, 5000);
-}
-
+// Visualizza le applicazioni
 function viewApplications() {
   document.getElementById("adminContent").innerHTML = `
     <table class="admin-table">
@@ -208,6 +186,7 @@ function viewApplications() {
   `;
 }
 
+// Aggiorna lo stato di un'applicazione
 function updateStatus(applicationID, newStatus) {
   const application = applications.find((app) => app.id === applicationID);
   if (application) {
@@ -217,13 +196,21 @@ function updateStatus(applicationID, newStatus) {
   }
 }
 
-function getQueryParam(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
+// Mostra un messaggio di stato
+function showStatus(message, type) {
+  const statusMessage = document.getElementById("statusMessage");
+  statusMessage.textContent = message;
+  statusMessage.className = `status-message ${type}`;
+  setTimeout(() => {
+    statusMessage.textContent = "";
+  }, 5000);
 }
 
+// Carica un'applicazione specifica dalla URL
 function loadApplicationFromURL() {
-  const appID = getQueryParam("app");
+  const urlParams = new URLSearchParams(window.location.search);
+  const appID = urlParams.get("app");
+
   if (appID) {
     const application = applications.find((app) => app.id === appID);
     if (application) {
@@ -245,5 +232,5 @@ function loadApplicationFromURL() {
   }
 }
 
-// Carica l'applicazione dalla URL (se presente)
+// Carica un'applicazione specifica dalla URL se presente
 loadApplicationFromURL();
