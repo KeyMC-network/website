@@ -107,6 +107,10 @@ document.getElementById("loginForm").onsubmit = (e) => {
   }
 };
 
+function generateUniqueID() {
+  return 'APP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+}
+
 function loadForm(position) {
   const positionData = positions[position];
   document.getElementById("formContainer").style.display = "none";
@@ -131,7 +135,7 @@ function loadForm(position) {
   document.getElementById("applicationForm").onsubmit = (e) => {
     e.preventDefault();
     const answers = Array.from(e.target.querySelectorAll("textarea")).map((input) => input.value);
-    const applicationID = `APP-${Date.now()}`;
+    const applicationID = generateUniqueID();
     const newApplication = { id: applicationID, position, answers, status: "Pending" };
     applications.push(newApplication);
     localStorage.setItem("applications", JSON.stringify(applications));
@@ -139,10 +143,7 @@ function loadForm(position) {
     sendWebhook(applicationID);
 
     document.getElementById("applicationContainer").style.display = "none";
-    showStatus(
-      `Application submitted successfully! Your Application ID is: ${applicationID}`,
-      "success"
-    );
+    showStatus(`Application submitted successfully! Your Application ID is: ${applicationID}`, "success");
   };
 }
 
