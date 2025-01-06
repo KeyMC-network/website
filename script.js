@@ -108,10 +108,6 @@ document.getElementById("loginForm").onsubmit = (e) => {
   }
 };
 
-function generateUniqueID() {
-  return 'APP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-}
-
 function showPositions() {
   document.getElementById("formContainer").innerHTML = `
     <h2>Select a Position</h2>
@@ -146,7 +142,7 @@ function loadForm(position) {
   document.getElementById("applicationForm").onsubmit = (e) => {
     e.preventDefault();
     const answers = Array.from(e.target.querySelectorAll("textarea")).map((input) => input.value);
-    const applicationID = generateUniqueID();
+    const applicationID = `APP-${Date.now()}`;
     const newApplication = { id: applicationID, position, answers, status: "Pending" };
     applications.push(newApplication);
     localStorage.setItem("applications", JSON.stringify(applications));
@@ -209,6 +205,69 @@ function viewApplications() {
     </table>
     <div id="applicationDetails"></div>
   `;
+}
+
+function showAddStaffForm() {
+  if (!currentUser.isAdmin) {
+    showStatus("Only Admin can add staff!", "error");
+    return;
+  }
+
+  document.getElementById("applicationDetails").innerHTML = `
+    <h2>Add New Staff</h2>
+    <form id="addStaffForm">
+      <div class="form-field">
+        <label>Username</label>
+        <input type="text" id="newStaffUsername" required />
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="newStaffPassword" required />
+      </div>
+      <button type="submit" class="button">Add Staff</button>
+    </form>
+  `;
+
+  document.getElementById("addStaffForm").onsubmit = (e) => {
+    e.preventDefault();
+    const username = document.getElementById("newStaffUsername").value.trim();
+    const password = document.getElementById("newStaffPassword").value.trim();
+
+    if (username && password) {
+      staff.push({ username, password, isAdmin: false });
+      localStorage.setItem("staff", JSON.stringify(staff));
+      showStatus(`Staff member "${username}" added successfully!`, "success");
+      document.getElementById("applicationDetails").innerHTML = "";
+    } else {
+      showStatus("Please fill in all fields!", "error");
+    }
+  };
+}
+
+function showStaff() {
+  document.getElementById("applicationDetails").innerHTML = `
+    <h2>Staff Members</h2>
+    <ul id="staffList">
+      ${staff
+        .map(
+          (member, index) => `
+        <li>
+          <strong>${member.username}</strong>
+          ${member.username === "Admin" ? 
+            '<button class="button disabled" title="Cannot delete Admin">🛡️</button>' : 
+            `<button class="button" onclick="deleteStaff(${index})">🗑️</button>`}
+        </li>`
+        )
+        .join("")}
+    </ul>
+  `;
+}
+
+function deleteStaff(index) {
+  const deletedStaff = staff.splice(index, 1)[0];
+  localStorage.setItem("staff", JSON.stringify(staff));
+  showStatus(`Staff member "${deletedStaff.username}" deleted successfully!`, "success");
+  showStaff();
 }
 
 function showApplication(applicationID) {
