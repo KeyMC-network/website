@@ -1,4 +1,4 @@
-let applications = [];
+let applications = JSON.parse(localStorage.getItem("applications")) || [];
 let staff = [{ username: "Admin", password: "Pollo9.0ll" }];
 let currentUser = null;
 
@@ -131,12 +131,17 @@ function loadForm(position) {
     e.preventDefault();
     const answers = Array.from(e.target.querySelectorAll("textarea")).map((input) => input.value);
     const applicationID = `APP-${Date.now()}`;
-    applications.push({ id: applicationID, position, answers, status: "Pending" });
+    const newApplication = { id: applicationID, position, answers, status: "Pending" };
+    applications.push(newApplication);
+    localStorage.setItem("applications", JSON.stringify(applications));
 
     sendWebhook(applicationID, position, answers);
 
     document.getElementById("applicationContainer").style.display = "none";
-    showStatus("Application submitted successfully! Check your Discord DMs for updates.", "success");
+    showStatus(
+      "Application submitted successfully! The staff will contact you on Discord if your application is accepted.",
+      "success"
+    );
   };
 }
 
@@ -145,6 +150,9 @@ function sendWebhook(applicationID, position, answers) {
     content: null,
     embeds: [
       {
+        title: "
+
+```javascript
         title: "New Staff Application",
         description: `**Position**: ${positions[position].title}\n**ID**: ${applicationID}`,
         color: 3447003,
@@ -186,7 +194,7 @@ function viewApplications() {
         .map(
           (app) => `
       <tr>
-        <td>${app.id}</td>
+        <td><a href="#" onclick="viewApplication('${app.id}')">${app.id}</a></td>
         <td>${positions[app.position].title}</td>
         <td class="${app.status.toLowerCase()}">${app.status}</td>
         <td>
@@ -200,10 +208,26 @@ function viewApplications() {
   `;
 }
 
+function viewApplication(applicationID) {
+  const application = applications.find((app) => app.id === applicationID);
+  if (application) {
+    document.getElementById("adminContent").innerHTML = `
+      <h2>Application Details</h2>
+      <p><strong>Application ID:</strong> ${applicationID}</p>
+      <p><strong>Position:</strong> ${positions[application.position].title}</p>
+      ${application.answers
+        .map((answer, index) => `<p><strong>${positions[application.position].questions[index]}:</strong> ${answer}</p>`)
+        .join("")}
+      <button onclick="viewApplications()">Back to Applications</button>
+    `;
+  }
+}
+
 function updateStatus(applicationID, newStatus) {
   const application = applications.find((app) => app.id === applicationID);
   if (application) {
     application.status = newStatus;
+    localStorage.setItem("applications", JSON.stringify(applications));
     viewApplications();
   }
 }
