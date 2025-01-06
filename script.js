@@ -216,3 +216,34 @@ function updateStatus(applicationID, newStatus) {
     viewApplications();
   }
 }
+
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+function loadApplicationFromURL() {
+  const appID = getQueryParam("app");
+  if (appID) {
+    const application = applications.find((app) => app.id === appID);
+    if (application) {
+      document.body.innerHTML = `
+        <h1>Application Details</h1>
+        <p><strong>Application ID:</strong> ${application.id}</p>
+        <p><strong>Position:</strong> ${positions[application.position].title}</p>
+        ${application.answers
+          .map(
+            (answer, index) =>
+              `<p><strong>${positions[application.position].questions[index]}:</strong> ${answer}</p>`
+          )
+          .join("")}
+        <button onclick="location.href='${baseURL}'">Back to Home</button>
+      `;
+    } else {
+      document.body.innerHTML = "<h1>Application not found</h1>";
+    }
+  }
+}
+
+// Carica l'applicazione dalla URL (se presente)
+loadApplicationFromURL();
