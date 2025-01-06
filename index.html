@@ -3,195 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KeyMc Forum</title>
+  <title>KeyMC Staff Applications</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* General body styling */
     body {
-      font-family: 'Arial', sans-serif;
-      background-image: url('https://i.imgur.com/DI7sYVD.jpg'); /* Minecraft texture */
-      background-size: cover;
-      background-attachment: fixed;
-      color: #ffff55; /* Minecraft gold color */
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Header */
-    header {
-      background: linear-gradient(90deg, #ff5555, #ff7733);
-      padding: 20px;
+      font-family: 'Roboto', sans-serif;
+      background-color: #222;
+      color: white;
       text-align: center;
-      color: white;
-      text-shadow: 2px 2px 5px #000;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 20px;
     }
-
-    header h1 {
-      font-size: 2.5rem;
-      margin: 0;
-    }
-
-    /* Navigation bar */
-    nav {
-      background-color: #282828;
+    .button {
       padding: 10px 20px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    nav a {
-      color: #ffff55;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 10px 15px;
-      border-radius: 5px;
-      transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
-    }
-
-    nav a:hover {
-      background-color: #ff5555;
-      color: white;
-    }
-
-    .logout-btn {
-      background-color: #ff5555;
-      padding: 8px 15px;
+      margin: 10px;
+      background: linear-gradient(to right, #3b82f6, #2563eb);
       color: white;
       border: none;
       border-radius: 5px;
+      font-size: 1.2em;
       cursor: pointer;
-      transition: background 0.3s ease-in-out;
+      transition: background 0.3s;
     }
-
-    .logout-btn:hover {
-      background-color: #ff3333;
+    .button:hover {
+      background: linear-gradient(to right, #2563eb, #1d4ed8);
     }
-
-    /* Tab content */
-    .tab-content {
+    .form-container, .login-container, .application-container, .admin-panel {
       display: none;
-      padding: 20px;
-      background: rgba(44, 62, 80, 0.9);
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      margin-top: 20px;
     }
-
-    .tab-content.active {
+    .form-field {
+      margin: 10px 0;
       display: block;
     }
-
-    /* Buttons */
-    .btn {
-      background: linear-gradient(90deg, #007a99, #00bcd4);
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: transform 0.2s ease-in-out, background 0.3s ease-in-out;
+    .form-field label {
+      font-weight: bold;
+      margin-right: 10px;
     }
-
-    .btn:hover {
-      transform: scale(1.05);
-      background: linear-gradient(90deg, #0097a7, #00e5ff);
+    .form-field input, .form-field textarea {
+      padding: 8px;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
-
-    /* Input fields */
-    input, textarea {
-      width: calc(100% - 20px);
+    .status-message {
+      margin-top: 20px;
       padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #006060;
       border-radius: 5px;
-      background: rgba(40, 62, 74, 0.9);
+      font-weight: bold;
+      animation: fadeOut 5s forwards;
+    }
+    .success {
+      background-color: #16a34a;
       color: white;
     }
-
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: #00bcd4;
+    .error {
+      background-color: #dc2626;
+      color: white;
+    }
+    .admin-table {
+      width: 80%;
+      margin: 0 auto;
+      border-collapse: collapse;
+    }
+    .admin-table th, .admin-table td {
+      padding: 10px;
+      border: 1px solid #444;
+      text-align: center;
+    }
+    .pending { color: orange; }
+    .accepted { color: green; }
+    .refused { color: red; }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>KeyMc Forum</h1>
-  </header>
+  <h1>Welcome to KeyMC Staff Applications</h1>
+  <button class="button" id="applyNowBtn">Apply Now</button>
+  <button class="button" id="staffLoginBtn">Staff Login</button>
 
-  <nav>
-    <a href="#" onclick="showTab('register-section')">Register</a>
-    <a href="#" onclick="showTab('login-section')">Login</a>
-    <a href="#" onclick="showTab('admin-dashboard')">Admin Dashboard</a>
-    <a href="#" onclick="showTab('forum-screen')">Forum</a>
-    <a href="#" onclick="showTab('profile-screen')">Profile</a>
-    <button class="logout-btn" onclick="logout()">Logout</button>
-  </nav>
-
-  <div id="app">
-    <!-- # Register Section -->
-    <div id="register-section" class="tab-content active">
-      <h2>Register</h2>
-      <input type="text" id="reg-username" placeholder="Username">
-      <input type="email" id="reg-email" placeholder="Email">
-      <input type="password" id="reg-password" placeholder="Password">
-      <input type="password" id="reg-confirm-password" placeholder="Confirm Password">
-      <button class="btn" onclick="registerUser()">Register</button>
-      <p>Already have an account? <a href="#" onclick="showTab('login-section')">Login</a></p>
-    </div>
-
-    <!-- # Login Section -->
-    <div id="login-section" class="tab-content">
-      <h2>Login</h2>
-      <input type="text" id="login-username" placeholder="Username">
-      <input type="password" id="login-password" placeholder="Password">
-      <button class="btn" onclick="loginUser()">Login</button>
-      <p>Don't have an account? <a href="#" onclick="showTab('register-section')">Register</a></p>
-    </div>
-
-    <!-- # Admin Dashboard -->
-    <div id="admin-dashboard" class="tab-content">
-      <h2>Admin Dashboard</h2>
-      <button class="btn" onclick="createCategory()">Create Category</button>
-      <button class="btn" onclick="createForum()">Create Forum</button>
-      <button class="btn" onclick="createRole()">Create Role</button>
-      <button class="btn" onclick="manageTags()">Manage Tags</button>
-      <div id="admin-output"></div>
-    </div>
-
-    <!-- # Forum Screen -->
-    <div id="forum-screen" class="tab-content">
-      <h2>Welcome to KeyMc Forum</h2>
-      <input type="text" id="search-bar" placeholder="Search posts..." onkeyup="searchPosts()">
-      <div id="categories"></div>
-    </div>
-
-    <!-- # Profile Screen -->
-    <div id="profile-screen" class="tab-content">
-      <h2>Your Profile</h2>
-      <div class="profile">
-        <img id="profile-picture" src="default-avatar.png" alt="Profile Picture">
-        <p><strong>Username:</strong> <span id="profile-username"></span></p>
-        <p><strong>Display Name:</strong> <span id="display-name"></span></p>
-        <input type="file" id="upload-avatar" onchange="updateProfilePicture()">
-        <input type="text" id="update-display-name" placeholder="New Display Name">
-        <button class="btn" onclick="saveProfile()">Save Changes</button>
-      </div>
-    </div>
+  <!-- Application Form -->
+  <div class="form-container" id="formContainer">
+    <h2>Select a Position</h2>
+    <button class="button" onclick="loadForm('helper')">Helper</button>
+    <button class="button" onclick="loadForm('websiteDeveloper')">Website Developer</button>
+    <button class="button" onclick="loadForm('pluginDeveloper')">Plugin Developer</button>
+    <button class="button" onclick="loadForm('eventManager')">Event Manager</button>
+    <button class="button" onclick="loadForm('configurator')">Configurator</button>
   </div>
 
-  <script>
-    // Function to show specific tab content
-    function showTab(tabId) {
-      const tabs = document.querySelectorAll('.tab-content');
-      tabs.forEach(tab => tab.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-    }
+  <!-- Position-specific form -->
+  <div class="application-container" id="applicationContainer"></div>
 
-    function logout() {
-      alert('Logged out!');
-    }
-  </script>
+  <!-- Login Form -->
+  <div class="login-container" id="loginContainer">
+    <h2>Staff Login</h2>
+    <form id="loginForm">
+      <div class="form-field">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required>
+      </div>
+      <div class="form-field">
+        <label for="password">Password:</label>
+        <input type="password" id="password" required>
+      </div>
+      <button type="submit" class="button">Login</button>
+    </form>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="admin-panel" id="adminPanel">
+    <h2>Admin Panel</h2>
+    <button class="button" onclick="viewApplications()">Application Log</button>
+    <button class="button" onclick="addStaff()">Add Staff</button>
+    <div id="adminContent"></div>
+  </div>
+
+  <div id="statusMessage" class="status-message"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
