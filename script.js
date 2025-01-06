@@ -111,6 +111,7 @@ function showStatus(message, type) {
 function viewApplications() {
   document.getElementById("adminContent").innerHTML = `
     <button class="button" onclick="showAddStaffForm()">Add Staff</button>
+    <button class="button" onclick="showStaff()">Show Staff</button>
     <table class="admin-table">
       <tr>
         <th>Application ID</th>
@@ -141,19 +142,7 @@ function viewApplications() {
 
 function showAddStaffForm() {
   document.getElementById("applicationDetails").innerHTML = `
-    <h2>Staff Management</h2>
-    <ul id="staffList">
-      ${staff
-        .map(
-          (member, index) => `
-        <li>
-          <strong>${member.username}</strong>
-          <button class="button" onclick="deleteStaff(${index})">🗑️</button>
-        </li>`
-        )
-        .join("")}
-    </ul>
-    <h3>Add New Staff</h3>
+    <h2>Add New Staff</h2>
     <form id="addStaffForm">
       <div class="form-field">
         <label>Username</label>
@@ -176,18 +165,35 @@ function showAddStaffForm() {
       staff.push({ username, password });
       localStorage.setItem("staff", JSON.stringify(staff));
       showStatus(`Staff member "${username}" added successfully!`, "success");
-      showAddStaffForm();
+      document.getElementById("applicationDetails").innerHTML = "";
     } else {
       showStatus("Please fill in all fields!", "error");
     }
   };
 }
 
+function showStaff() {
+  document.getElementById("applicationDetails").innerHTML = `
+    <h2>Staff Members</h2>
+    <ul id="staffList">
+      ${staff
+        .map(
+          (member, index) => `
+        <li>
+          <strong>${member.username}</strong>
+          <button class="button" onclick="deleteStaff(${index})">🗑️</button>
+        </li>`
+        )
+        .join("")}
+    </ul>
+  `;
+}
+
 function deleteStaff(index) {
   const deletedStaff = staff.splice(index, 1)[0];
   localStorage.setItem("staff", JSON.stringify(staff));
   showStatus(`Staff member "${deletedStaff.username}" deleted successfully!`, "success");
-  showAddStaffForm();
+  showStaff();
 }
 
 function showApplication(applicationID) {
