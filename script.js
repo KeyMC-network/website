@@ -1,5 +1,5 @@
 let applications = JSON.parse(localStorage.getItem("applications")) || [];
-let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll" }];
+let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll", isAdmin: true }];
 let currentUser = null;
 
 const webhookURL = "https://discord.com/api/webhooks/1322909591130083422/v1EjWclv8RjiREgV0sWBBD5l84yIGDi0FWYepEA136C3Ku0phnuUBjl5rAj7BuMx0_qD";
@@ -110,7 +110,8 @@ function showStatus(message, type) {
 
 function viewApplications() {
   document.getElementById("adminContent").innerHTML = `
-    <button class="button" onclick="showAddStaffForm()">Add Staff</button>
+    ${currentUser.isAdmin ? `
+      <button class="button" onclick="showAddStaffForm()">Add Staff</button>` : ""}
     <button class="button" onclick="showStaff()">Show Staff</button>
     <table class="admin-table">
       <tr>
@@ -141,6 +142,11 @@ function viewApplications() {
 }
 
 function showAddStaffForm() {
+  if (!currentUser.isAdmin) {
+    showStatus("Only Admin can add staff!", "error");
+    return;
+  }
+
   document.getElementById("applicationDetails").innerHTML = `
     <h2>Add New Staff</h2>
     <form id="addStaffForm">
@@ -162,7 +168,7 @@ function showAddStaffForm() {
     const password = document.getElementById("newStaffPassword").value.trim();
 
     if (username && password) {
-      staff.push({ username, password });
+      staff.push({ username, password, isAdmin: false });
       localStorage.setItem("staff", JSON.stringify(staff));
       showStatus(`Staff member "${username}" added successfully!`, "success");
       document.getElementById("applicationDetails").innerHTML = "";
@@ -181,7 +187,9 @@ function showStaff() {
           (member, index) => `
         <li>
           <strong>${member.username}</strong>
-          <button class="button" onclick="deleteStaff(${index})">🗑️</button>
+          ${member.username === "Admin" ? 
+            '<button class="button disabled" title="Cannot delete Admin">🛡️</button>' : 
+            `<button class="button" onclick="deleteStaff(${index})">🗑️</button>`}
         </li>`
         )
         .join("")}
