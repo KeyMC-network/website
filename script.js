@@ -170,6 +170,7 @@ function showStatus(message, type) {
 
 function viewApplications() {
   document.getElementById("adminContent").innerHTML = `
+    <button class="button" onclick="showAddStaffForm()">Add Staff</button>
     <table class="admin-table">
       <tr>
         <th>Application ID</th>
@@ -196,6 +197,33 @@ function viewApplications() {
     </table>
     <div id="applicationDetails"></div>
   `;
+}
+
+function showAddStaffForm() {
+  document.getElementById("applicationDetails").innerHTML = `
+    <h2>Add New Staff</h2>
+    <form id="addStaffForm">
+      <div class="form-field">
+        <label>Username</label>
+        <input type="text" id="newStaffUsername" required />
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="newStaffPassword" required />
+      </div>
+      <button type="submit" class="button">Add Staff</button>
+    </form>
+  `;
+  document.getElementById("addStaffForm").onsubmit = (e) => {
+    e.preventDefault();
+    const username = document.getElementById("newStaffUsername").value;
+    const password = document.getElementById("newStaffPassword").value;
+
+    staff.push({ username, password });
+    localStorage.setItem("staff", JSON.stringify(staff));
+    showStatus(`Staff member "${username}" added successfully!`, "success");
+    document.getElementById("applicationDetails").innerHTML = "";
+  };
 }
 
 function showApplication(applicationID) {
