@@ -141,7 +141,19 @@ function viewApplications() {
 
 function showAddStaffForm() {
   document.getElementById("applicationDetails").innerHTML = `
-    <h2>Add New Staff</h2>
+    <h2>Staff Management</h2>
+    <ul id="staffList">
+      ${staff
+        .map(
+          (member, index) => `
+        <li>
+          <strong>${member.username}</strong>
+          <button class="button" onclick="deleteStaff(${index})">🗑️</button>
+        </li>`
+        )
+        .join("")}
+    </ul>
+    <h3>Add New Staff</h3>
     <form id="addStaffForm">
       <div class="form-field">
         <label>Username</label>
@@ -154,6 +166,7 @@ function showAddStaffForm() {
       <button type="submit" class="button">Add Staff</button>
     </form>
   `;
+
   document.getElementById("addStaffForm").onsubmit = (e) => {
     e.preventDefault();
     const username = document.getElementById("newStaffUsername").value.trim();
@@ -163,11 +176,18 @@ function showAddStaffForm() {
       staff.push({ username, password });
       localStorage.setItem("staff", JSON.stringify(staff));
       showStatus(`Staff member "${username}" added successfully!`, "success");
-      document.getElementById("applicationDetails").innerHTML = "";
+      showAddStaffForm();
     } else {
       showStatus("Please fill in all fields!", "error");
     }
   };
+}
+
+function deleteStaff(index) {
+  const deletedStaff = staff.splice(index, 1)[0];
+  localStorage.setItem("staff", JSON.stringify(staff));
+  showStatus(`Staff member "${deletedStaff.username}" deleted successfully!`, "success");
+  showAddStaffForm();
 }
 
 function showApplication(applicationID) {
