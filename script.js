@@ -20,66 +20,6 @@ const positions = {
       "How much time can you dedicate to the server each week?",
     ],
   },
-  websiteDeveloper: {
-    title: "Website Developer Application",
-    questions: [
-      "Discord ID",
-      "Minecraft Username",
-      "Age",
-      "Country",
-      "Local Time",
-      "Why do you want to be a Website Developer?",
-      "What relevant experience and skills do you have in web development?",
-      "Share links to websites you have developed or contributed to.",
-      "What technologies and programming languages are you proficient in?",
-      "How do you stay updated with the latest web development trends and technologies?",
-    ],
-  },
-  pluginDeveloper: {
-    title: "Plugin Developer Application",
-    questions: [
-      "Discord ID",
-      "Minecraft Username",
-      "Age",
-      "Country",
-      "Local Time",
-      "Why do you want to be a Plugin Developer?",
-      "What relevant experience and skills do you have in plugin development?",
-      "Provide examples of plugins you have developed (links or descriptions).",
-      "What programming languages and tools do you use for plugin development?",
-      "How do you handle debugging and troubleshooting in your code?",
-    ],
-  },
-  eventManager: {
-    title: "Event Manager Application",
-    questions: [
-      "Discord ID",
-      "Minecraft Username",
-      "Age",
-      "Country",
-      "Local Time",
-      "Why do you want to be an Event Manager?",
-      "What relevant experience and skills do you have in managing events?",
-      "Describe a successful event you have managed in the past.",
-      "How do you plan and organize events to ensure their success?",
-      "How would you promote events to maximize player participation?",
-    ],
-  },
-  configurator: {
-    title: "Configurator Application",
-    questions: [
-      "Discord ID",
-      "Minecraft Username",
-      "Age",
-      "Country",
-      "Local Time",
-      "Why do you want to be a Configurator?",
-      "What experience do you have with setting up and configuring Minecraft plugins?",
-      "How would you handle a plugin causing issues in-game?",
-      "What qualities do you think are important for a Configurator?",
-      "How much time can you dedicate to the server each week?",
-    ],
-  },
 };
 
 document.getElementById("applyNowBtn").onclick = () => {
@@ -216,13 +156,17 @@ function showAddStaffForm() {
   `;
   document.getElementById("addStaffForm").onsubmit = (e) => {
     e.preventDefault();
-    const username = document.getElementById("newStaffUsername").value;
-    const password = document.getElementById("newStaffPassword").value;
+    const username = document.getElementById("newStaffUsername").value.trim();
+    const password = document.getElementById("newStaffPassword").value.trim();
 
-    staff.push({ username, password });
-    localStorage.setItem("staff", JSON.stringify(staff));
-    showStatus(`Staff member "${username}" added successfully!`, "success");
-    document.getElementById("applicationDetails").innerHTML = "";
+    if (username && password) {
+      staff.push({ username, password });
+      localStorage.setItem("staff", JSON.stringify(staff));
+      showStatus(`Staff member "${username}" added successfully!`, "success");
+      document.getElementById("applicationDetails").innerHTML = "";
+    } else {
+      showStatus("Please fill in all fields!", "error");
+    }
   };
 }
 
@@ -233,12 +177,7 @@ function showApplication(applicationID) {
       <h2>Application Details</h2>
       <p><strong>Application ID:</strong> ${application.id}</p>
       <p><strong>Position:</strong> ${positions[application.position].title}</p>
-      ${application.answers
-        .map(
-          (answer, index) =>
-            `<p><strong>${positions[application.position].questions[index]}:</strong> ${answer}</p>`
-        )
-        .join("")}
+      <p>${application.answers.join("</p><p>")}</p>
     `;
   } else {
     document.getElementById("applicationDetails").innerHTML = "<p>Application not found.</p>";
