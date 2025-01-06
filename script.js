@@ -188,6 +188,7 @@ function viewApplications() {
           <button onclick="showApplication('${app.id}')">Show Application</button>
           <button onclick="updateStatus('${app.id}', 'Accepted')">Accept</button>
           <button onclick="updateStatus('${app.id}', 'Refused')">Refuse</button>
+          <button onclick="deleteApplication('${app.id}')">🗑️</button>
         </td>
       </tr>`
         )
@@ -223,4 +224,10 @@ function updateStatus(applicationID, newStatus) {
     localStorage.setItem("applications", JSON.stringify(applications));
     viewApplications();
   }
+}
+
+function deleteApplication(applicationID) {
+  applications = applications.filter((app) => app.id !== applicationID);
+  localStorage.setItem("applications", JSON.stringify(applications));
+  viewApplications();
 }
