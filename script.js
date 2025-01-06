@@ -2,7 +2,6 @@ let applications = JSON.parse(localStorage.getItem("applications")) || [];
 let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll" }];
 let currentUser = null;
 
-const webhookURL = "https://discord.com/api/webhooks/1322909591130083422/v1EjWclv8RjiREgV0sWBBD5l84yIGDi0FWYepEA136C3Ku0phnuUBjl5rAj7BuMx0_qD";
 const baseURL = window.location.origin; // Base URL per generare link unici
 
 const positions = {
@@ -138,47 +137,12 @@ function loadForm(position) {
     applications.push(newApplication);
     localStorage.setItem("applications", JSON.stringify(applications));
 
-    sendWebhook(applicationID, position, answers, applicationLink);
-
     document.getElementById("applicationContainer").style.display = "none";
     showStatus(
-      "Application submitted successfully! The staff will contact you on Discord if your application is accepted.",
+      "Application submitted successfully! Use this link to view: " + applicationLink,
       "success"
     );
   };
-}
-
-function sendWebhook(applicationID, position, answers, link) {
-  const data = {
-    content: null,
-    embeds: [
-      {
-        title: "New Staff Application",
-        description: `**Position**: ${positions[position].title}\n**ID**: ${applicationID}\n[View Application](${link})`,
-        color: 3447003,
-        fields: answers.map((answer, index) => ({
-          name: positions[position].questions[index],
-          value: answer || "N/A",
-        })),
-        timestamp: new Date().toISOString(),
-      },
-    ],
-  };
-
-  fetch(webhookURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  }).catch((error) => console.error("Error sending webhook:", error));
-}
-
-function showStatus(message, type) {
-  const statusMessage = document.getElementById("statusMessage");
-  statusMessage.textContent = message;
-  statusMessage.className = `status-message ${type}`;
-  setTimeout(() => {
-    statusMessage.textContent = "";
-  }, 5000);
 }
 
 function viewApplications() {
