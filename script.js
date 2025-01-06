@@ -3,12 +3,8 @@ let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", p
 let currentUser = null;
 
 const webhookURL = "https://discord.com/api/webhooks/1322909591130083422/v1EjWclv8RjiREgV0sWBBD5l84yIGDi0FWYepEA136C3Ku0phnuUBjl5rAj7BuMx0_qD";
-const baseURL = window.location.origin;
+const baseURL = window.location.origin; // Base URL per generare link unici
 
-// Variabili CAPTCHA
-let captchaValue = "";
-
-// Posizioni disponibili
 const positions = {
   helper: {
     title: "Helper Application",
@@ -70,56 +66,36 @@ const positions = {
       "How would you promote events to maximize player participation?",
     ],
   },
-  configurator: {
-    title: "Configurator Application",
-    questions: [
-      "Discord ID",
-      "Minecraft Username",
-      "Age",
-      "Country",
-      "Local Time",
-      "Why do you want to be a Configurator?",
-      "What experience do you have with setting up and configuring Minecraft plugins?",
-      "How would you handle a plugin causing issues in-game?",
-      "What qualities do you think are important for a Configurator?",
-      "How much time can you dedicate to the server each week?",
-    ],
-  },
 };
 
-// Genera un CAPTCHA visivo
-function generateCaptcha() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  captchaValue = Array.from({ length: 6 }, () =>
-    characters.charAt(Math.floor(Math.random() * characters.length))
-  ).join("");
+// Funzione per inviare un'applicazione al webhook Discord
+function sendWebhook(applicationID, position, answers, link) {
+  const data = {
+    content: null,
+    embeds: [
+      {
+        title: "New Staff Application",
+        description: `**Position**: ${positions[position].title}\n**ID**: ${applicationID}\n[View Application](${link})`,
+        color: 3447003,
+        fields: answers.map((answer, index) => ({
+          name: positions[position].questions[index],
+          value: answer || "N/A",
+        })),
+        timestamp: new Date().toISOString(),
+      },
+    ],
+  };
 
-  const canvas = document.getElementById("captchaCanvas");
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "30px Arial";
-  ctx.fillStyle = "#4f46e5"; // Colore principale
-  ctx.fillText(captchaValue, 10, 40);
-
-  // Linee casuali per decorare
-  for (let i = 0; i < 5; i++) {
-    ctx.beginPath();
-    ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
-    ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
-    ctx.strokeStyle = "#3b82f6"; // Colore decorativo
-    ctx.stroke();
-  }
-}
-
-// Verifica il CAPTCHA
-function validateCaptcha(input) {
-  return input === captchaValue;
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  }).catch((error) => console.error("Error sending webhook:", error));
 }
 
 // Mostra il modulo di login
 document.getElementById("staffLoginBtn").onclick = () => {
   document.getElementById("loginContainer").style.display = "block";
-  generateCaptcha();
 };
 
 // Gestisce il login dello staff
@@ -127,13 +103,6 @@ document.getElementById("loginForm").onsubmit = (e) => {
   e.preventDefault();
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
-  const captchaInput = document.getElementById("captchaInput").value;
-
-  if (!validateCaptcha(captchaInput)) {
-    showStatus("Invalid CAPTCHA!", "error");
-    generateCaptcha();
-    return;
-  }
 
   const user = staff.find((s) => s.username === username && s.password === password);
   if (user) {
@@ -147,18 +116,7 @@ document.getElementById("loginForm").onsubmit = (e) => {
   }
 };
 
-// Aggiunge un nuovo membro dello staff
-function addStaff() {
-  const username = prompt("Enter new staff username:");
-  const password = prompt("Enter new staff password:");
-  if (username && password) {
-    staff.push({ username, password });
-    localStorage.setItem("staff", JSON.stringify(staff));
-    showStatus(`Staff member "${username}" added successfully!`, "success");
-  }
-}
-
-// Visualizza le applicazioni
+// Visualizza tutte le applicazioni
 function viewApplications() {
   document.getElementById("adminContent").innerHTML = `
     <table class="admin-table">
@@ -196,14 +154,20 @@ function updateStatus(applicationID, newStatus) {
   }
 }
 
-// Mostra un messaggio di stato
-function showStatus(message, type) {
-  const statusMessage = document.getElementById("statusMessage");
-  statusMessage.textContent = message;
-  statusMessage.className = `status-message ${type}`;
-  setTimeout(() => {
-    statusMessage.textContent = "";
-  }, 5000);
+// Salva una nuova applicazione
+function submitApplication(position) {
+  const positionData = positions[position];
+  const answers = Array.from(document.querySelectorAll("textarea")).map((input) => input.value);
+  const applicationID = `APP-${Date.now()}`;
+  const applicationLink = `${baseURL}?app=${applicationID}`;
+
+  const newApplication = { id: applicationID, position, answers, status: "Pending", link: applicationLink };
+  applications.push(newApplication);
+  localStorage.setItem("applications", JSON.stringify(applications));
+
+  sendWebhook(applicationID, position, answers, applicationLink);
+
+  showStatus("Application submitted successfully!", "success");
 }
 
 // Carica un'applicazione specifica dalla URL
@@ -232,5 +196,15 @@ function loadApplicationFromURL() {
   }
 }
 
-// Carica un'applicazione specifica dalla URL se presente
+// Mostra un messaggio di stato
+function showStatus(message, type) {
+  const statusMessage = document.getElementById("statusMessage");
+  statusMessage.textContent = message;
+  statusMessage.className = `status-message ${type}`;
+  setTimeout(() => {
+    statusMessage.textContent = "";
+  }, 5000);
+}
+
+// Inizializza la pagina
 loadApplicationFromURL();
