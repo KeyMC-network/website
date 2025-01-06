@@ -8,17 +8,17 @@
     /* General body styling */
     body {
       font-family: 'Arial', sans-serif;
-      background-image: url('https://i.imgur.com/DI7sYVD.jpg'); /* Minecraft-like texture */
+      background-image: url('https://i.imgur.com/DI7sYVD.jpg'); /* Minecraft texture */
       background-size: cover;
       background-attachment: fixed;
-      color: #b3e6ff;
+      color: #ffff55; /* Minecraft gold color */
       margin: 0;
       padding: 0;
     }
 
     /* Header */
     header {
-      background: linear-gradient(90deg, #005f73, #0a9396);
+      background: linear-gradient(90deg, #ff5555, #ff7733);
       padding: 20px;
       text-align: center;
       color: white;
@@ -33,28 +33,30 @@
 
     /* Navigation bar */
     nav {
-      background-color: #004050;
+      background-color: #282828;
       padding: 10px 20px;
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       align-items: center;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    nav .nav-links a {
-      color: white;
+    nav a {
+      color: #ffff55;
       text-decoration: none;
       font-weight: bold;
-      margin-right: 15px;
-      transition: color 0.3s ease-in-out;
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
     }
 
-    nav .nav-links a:hover {
-      color: #00bcd4;
+    nav a:hover {
+      background-color: #ff5555;
+      color: white;
     }
 
     .logout-btn {
-      background-color: #ff4d4d;
+      background-color: #ff5555;
       padding: 8px 15px;
       color: white;
       border: none;
@@ -67,30 +69,17 @@
       background-color: #ff3333;
     }
 
-    /* Containers */
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
+    /* Tab content */
+    .tab-content {
+      display: none;
       padding: 20px;
       background: rgba(44, 62, 80, 0.9);
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      animation: fadeIn 0.5s ease-in-out;
     }
 
-    /* Cards (forums, posts, replies) */
-    .card {
-      background: rgba(59, 75, 90, 0.9);
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-
-    .card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    .tab-content.active {
+      display: block;
     }
 
     /* Buttons */
@@ -124,32 +113,6 @@
       outline: none;
       border-color: #00bcd4;
     }
-
-    /* Profile Section */
-    .profile img {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    }
-
-    .profile p {
-      font-size: 1.2rem;
-      color: #b3e6ff;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
   </style>
 </head>
 <body>
@@ -158,37 +121,37 @@
   </header>
 
   <nav>
-    <div class="nav-links">
-      <a href="#" onclick="showHome()">Home</a>
-      <a href="#" onclick="showProfile()">Profile</a>
-      <a href="#" onclick="showNotifications()">Notifications</a>
-    </div>
+    <a href="#" onclick="showTab('register-section')">Register</a>
+    <a href="#" onclick="showTab('login-section')">Login</a>
+    <a href="#" onclick="showTab('admin-dashboard')">Admin Dashboard</a>
+    <a href="#" onclick="showTab('forum-screen')">Forum</a>
+    <a href="#" onclick="showTab('profile-screen')">Profile</a>
     <button class="logout-btn" onclick="logout()">Logout</button>
   </nav>
 
   <div id="app">
-    <!-- # AUTHENTICATION SCREEN -->
-    <div id="auth-screen" class="container">
-      <div id="register-section">
-        <h2>Register</h2>
-        <input type="text" id="reg-username" placeholder="Username">
-        <input type="email" id="reg-email" placeholder="Email">
-        <input type="password" id="reg-password" placeholder="Password">
-        <input type="password" id="reg-confirm-password" placeholder="Confirm Password">
-        <button class="btn" onclick="registerUser()">Register</button>
-        <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
-      </div>
-      <div id="login-section" class="hidden">
-        <h2>Login</h2>
-        <input type="text" id="login-username" placeholder="Username">
-        <input type="password" id="login-password" placeholder="Password">
-        <button class="btn" onclick="loginUser()">Login</button>
-        <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
-      </div>
+    <!-- # Register Section -->
+    <div id="register-section" class="tab-content active">
+      <h2>Register</h2>
+      <input type="text" id="reg-username" placeholder="Username">
+      <input type="email" id="reg-email" placeholder="Email">
+      <input type="password" id="reg-password" placeholder="Password">
+      <input type="password" id="reg-confirm-password" placeholder="Confirm Password">
+      <button class="btn" onclick="registerUser()">Register</button>
+      <p>Already have an account? <a href="#" onclick="showTab('login-section')">Login</a></p>
     </div>
 
-    <!-- # ADMIN DASHBOARD -->
-    <div id="admin-dashboard" class="hidden container">
+    <!-- # Login Section -->
+    <div id="login-section" class="tab-content">
+      <h2>Login</h2>
+      <input type="text" id="login-username" placeholder="Username">
+      <input type="password" id="login-password" placeholder="Password">
+      <button class="btn" onclick="loginUser()">Login</button>
+      <p>Don't have an account? <a href="#" onclick="showTab('register-section')">Register</a></p>
+    </div>
+
+    <!-- # Admin Dashboard -->
+    <div id="admin-dashboard" class="tab-content">
       <h2>Admin Dashboard</h2>
       <button class="btn" onclick="createCategory()">Create Category</button>
       <button class="btn" onclick="createForum()">Create Forum</button>
@@ -197,33 +160,15 @@
       <div id="admin-output"></div>
     </div>
 
-    <!-- # MODERATOR DASHBOARD -->
-    <div id="moderator-dashboard" class="hidden container">
-      <h2>Moderator Dashboard</h2>
-      <button class="btn" onclick="banUser()">Ban User</button>
-      <button class="btn" onclick="closePost()">Close Post</button>
-      <div id="moderator-output"></div>
-    </div>
-
-    <!-- # FORUM SCREEN -->
-    <div id="forum-screen" class="hidden container">
+    <!-- # Forum Screen -->
+    <div id="forum-screen" class="tab-content">
       <h2>Welcome to KeyMc Forum</h2>
       <input type="text" id="search-bar" placeholder="Search posts..." onkeyup="searchPosts()">
       <div id="categories"></div>
     </div>
 
-    <!-- # POST SCREEN -->
-    <div id="post-screen" class="hidden container">
-      <button class="btn" onclick="returnToForum()">Back to Forum</button>
-      <h2 id="post-title"></h2>
-      <p id="post-content"></p>
-      <div id="post-replies"></div>
-      <textarea id="reply-input" placeholder="Write your reply here"></textarea>
-      <button class="btn" onclick="addReply()">Reply</button>
-    </div>
-
-    <!-- # PROFILE SCREEN -->
-    <div id="profile-screen" class="hidden container">
+    <!-- # Profile Screen -->
+    <div id="profile-screen" class="tab-content">
       <h2>Your Profile</h2>
       <div class="profile">
         <img id="profile-picture" src="default-avatar.png" alt="Profile Picture">
@@ -236,6 +181,17 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // Function to show specific tab content
+    function showTab(tabId) {
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function logout() {
+      alert('Logged out!');
+    }
+  </script>
 </body>
 </html>
