@@ -2,7 +2,7 @@ let applications = JSON.parse(localStorage.getItem("applications")) || [];
 let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll" }];
 let currentUser = null;
 
-const baseURL = window.location.origin; // Base URL per generare link unici
+const webhookURL = "https://discord.com/api/webhooks/1322909591130083422/v1EjWclv8RjiREgV0sWBBD5l84yIGDi0FWYepEA136C3Ku0phnuUBjl5rAj7BuMx0_qD";
 
 const positions = {
   helper: {
@@ -132,17 +132,39 @@ function loadForm(position) {
     e.preventDefault();
     const answers = Array.from(e.target.querySelectorAll("textarea")).map((input) => input.value);
     const applicationID = `APP-${Date.now()}`;
-    const applicationLink = `${baseURL}?app=${applicationID}`;
-    const newApplication = { id: applicationID, position, answers, status: "Pending", link: applicationLink };
+    const newApplication = { id: applicationID, position, answers, status: "Pending" };
     applications.push(newApplication);
     localStorage.setItem("applications", JSON.stringify(applications));
 
+    sendWebhook(applicationID);
+
     document.getElementById("applicationContainer").style.display = "none";
     showStatus(
-      "Application submitted successfully! Use this link to view: " + applicationLink,
+      `Application submitted successfully! Your Application ID is: ${applicationID}`,
       "success"
     );
   };
+}
+
+function sendWebhook(applicationID) {
+  const data = {
+    content: `New application received! Application ID: ${applicationID}`,
+  };
+
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  }).catch((error) => console.error("Error sending webhook:", error));
+}
+
+function showStatus(message, type) {
+  const statusMessage = document.getElementById("statusMessage");
+  statusMessage.textContent = message;
+  statusMessage.className = `status-message ${type}`;
+  setTimeout(() => {
+    statusMessage.textContent = "";
+  }, 5000);
 }
 
 function viewApplications() {
@@ -158,10 +180,11 @@ function viewApplications() {
         .map(
           (app) => `
       <tr>
-        <td><a href="${app.link}" target="_blank">${app.id}</a></td>
+        <td>${app.id}</td>
         <td>${positions[app.position].title}</td>
         <td class="${app.status.toLowerCase()}">${app.status}</td>
         <td>
+          <button onclick="showApplication('${app.id}')">Show Application</button>
           <button onclick="updateStatus('${app.id}', 'Accepted')">Accept</button>
           <button onclick="updateStatus('${app.id}', 'Refused')">Refuse</button>
         </td>
@@ -169,7 +192,27 @@ function viewApplications() {
         )
         .join("")}
     </table>
+    <div id="applicationDetails"></div>
   `;
+}
+
+function showApplication(applicationID) {
+  const application = applications.find((app) => app.id === applicationID);
+  if (application) {
+    document.getElementById("applicationDetails").innerHTML = `
+      <h2>Application Details</h2>
+      <p><strong>Application ID:</strong> ${application.id}</p>
+      <p><strong>Position:</strong> ${positions[application.position].title}</p>
+      ${application.answers
+        .map(
+          (answer, index) =>
+            `<p><strong>${positions[application.position].questions[index]}:</strong> ${answer}</p>`
+        )
+        .join("")}
+    `;
+  } else {
+    document.getElementById("applicationDetails").innerHTML = "<p>Application not found.</p>";
+  }
 }
 
 function updateStatus(applicationID, newStatus) {
@@ -180,30 +223,3 @@ function updateStatus(applicationID, newStatus) {
     viewApplications();
   }
 }
-
-function loadApplicationFromURL() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const appID = urlParams.get("app");
-
-  if (appID) {
-    const application = applications.find((app) => app.id === appID);
-    if (application) {
-      document.body.innerHTML = `
-        <h1>Application Details</h1>
-        <p><strong>Application ID:</strong> ${application.id}</p>
-        <p><strong>Position:</strong> ${positions[application.position].title}</p>
-        ${application.answers
-          .map(
-            (answer, index) =>
-              `<p><strong>${positions[application.position].questions[index]}:</strong> ${answer}</p>`
-          )
-          .join("")}
-        <button onclick="location.href='${baseURL}'">Back to Home</button>
-      `;
-    } else {
-      document.body.innerHTML = "<h1>Application not found</h1>";
-    }
-  }
-}
-
-loadApplicationFromURL();
