@@ -1,7 +1,5 @@
 let applications = JSON.parse(localStorage.getItem("applications")) || [];
 let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll", isAdmin: true }];
-let clet applications = JSON.parse(localStorage.getItem("applications")) || [];
-let staff = JSON.parse(localStorage.getItem("staff")) || [{ username: "Admin", password: "Pollo9.0ll", isAdmin: true }];
 let currentUser = null;
 
 const webhookURL = "https://discord.com/api/webhooks/1322909591130083422/v1EjWclv8RjiREgV0sWBBD5l84yIGDi0FWYepEA136C3Ku0phnuUBjl5rAj7BuMx0_qD";
@@ -84,16 +82,21 @@ const positions = {
   },
 };
 
+// Event handlers for the main buttons
 document.getElementById("applyNowBtn").onclick = () => {
   document.getElementById("formContainer").style.display = "block";
   document.getElementById("applicationContainer").style.display = "none";
+  document.getElementById("loginContainer").style.display = "none";
   showPositions();
 };
 
 document.getElementById("staffLoginBtn").onclick = () => {
   document.getElementById("loginContainer").style.display = "block";
+  document.getElementById("formContainer").style.display = "none";
+  document.getElementById("applicationContainer").style.display = "none";
 };
 
+// Login form submission
 document.getElementById("loginForm").onsubmit = (e) => {
   e.preventDefault();
   const username = document.getElementById("username").value.trim();
@@ -112,6 +115,7 @@ document.getElementById("loginForm").onsubmit = (e) => {
   }
 };
 
+// Show positions to apply for
 function showPositions() {
   document.getElementById("formContainer").innerHTML = `
     <h2>Select a Position</h2>
@@ -125,6 +129,7 @@ function showPositions() {
   `;
 }
 
+// Load form for a specific position
 function loadForm(position) {
   const positionData = positions[position];
   document.getElementById("formContainer").innerHTML = `
@@ -158,6 +163,7 @@ function loadForm(position) {
   };
 }
 
+// Send webhook notification
 function sendWebhook(applicationID) {
   const data = {
     content: `New application received! Application ID: ${applicationID}`,
@@ -170,6 +176,7 @@ function sendWebhook(applicationID) {
   }).catch((error) => console.error("Error sending webhook:", error));
 }
 
+// Show status messages
 function showStatus(message, type) {
   const statusMessage = document.getElementById("statusMessage");
   statusMessage.textContent = message;
@@ -179,6 +186,7 @@ function showStatus(message, type) {
   }, 5000);
 }
 
+// View applications
 function viewApplications() {
   document.getElementById("adminContent").innerHTML = `
     ${currentUser.isAdmin ? `<button class="button" onclick="showAddStaffForm()">Add Staff</button>` : ""}
@@ -211,93 +219,7 @@ function viewApplications() {
   `;
 }
 
-function showAddStaffForm() {
-  if (!currentUser.isAdmin) {
-    showStatus("Only Admin can add staff!", "error");
-    return;
-  }
-
-  document.getElementById("applicationDetails").innerHTML = `
-    <h2>Add New Staff</h2>
-    <form id="addStaffForm">
-      <div class="form-field">
-        <label>Username</label>
-        <input type="text" id="newStaffUsername" required />
-      </div>
-      <div class="form-field">
-        <label>Password</label>
-        <input type="password" id="newStaffPassword" required />
-      </div>
-      <button type="submit" class="button">Add Staff</button>
-    </form>
-  `;
-
-  document.getElementById("addStaffForm").onsubmit = (e) => {
-    e.preventDefault();
-    const username = document.getElementById("newStaffUsername").value.trim();
-    const password = document.getElementById("newStaffPassword").value.trim();
-
-    if (username && password) {
-      staff.push({ username, password, isAdmin: false });
-      localStorage.setItem("staff", JSON.stringify(staff));
-      showStatus(`Staff member "${username}" added successfully!`, "success");
-      document.getElementById("applicationDetails").innerHTML = "";
-    } else {
-      showStatus("Please fill in all fields!", "error");
-    }
-  };
-}
-
-function showStaff() {
-  if (!currentUser.isAdmin) {
-    showStatus("You do not have permission to view staff members!", "error");
-    return;
-  }
-
-  document.getElementById("applicationDetails").innerHTML = `
-    <h2>Staff Members</h2>
-    <ul id="staffList">
-      ${staff
-        .map(
-          (member, index) => `
-        <li>
-          <strong>${member.username}</strong>
-          ${member.username === "Admin" ? 
-            '<button class="button disabled" title="Cannot delete Admin">🛡️</button>' : 
-            `<button class="button" onclick="deleteStaff(${index})">🗑️</button>`}
-        </li>`
-        )
-        .join("")}
-    </ul>
-  `;
-}
-
-function deleteStaff(index) {
-  const deletedStaff = staff.splice(index, 1)[0];
-  localStorage.setItem("staff", JSON.stringify(staff));
-  showStatus(`Staff member "${deletedStaff.username}" deleted successfully!`, "success");
-  showStaff();
-}
-
-function showApplication(applicationID) {
-  const application = applications.find((app) => app.id === applicationID);
-  if (application) {
-    document.getElementById("applicationDetails").innerHTML = `
-      <h2>Application Details</h2>
-      <p><strong>Application ID:</strong> ${application.id}</p>
-      <p><strong>Position:</strong> ${positions[application.position].title}</p>
-      ${application.answers
-        .map(
-          (answer, index) =>
-            `<p><strong>${positions[application.position].questions[index]}:</strong> ${answer}</p>`
-        )
-        .join("")}
-    `;
-  } else {
-    document.getElementById("applicationDetails").innerHTML = "<p>Application not found.</p>";
-  }
-}
-
+// Update application status
 function updateStatus(applicationID, newStatus) {
   const application = applications.find((app) => app.id === applicationID);
   if (application) {
@@ -307,6 +229,7 @@ function updateStatus(applicationID, newStatus) {
   }
 }
 
+// Delete application
 function deleteApplication(applicationID) {
   applications = applications.filter((app) => app.id !== applicationID);
   localStorage.setItem("applications", JSON.stringify(applications));
