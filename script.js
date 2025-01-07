@@ -82,7 +82,7 @@ const positions = {
   },
 };
 
-// Event handlers for the main buttons
+// Main buttons
 document.getElementById("applyNowBtn").onclick = () => {
   document.getElementById("formContainer").style.display = "block";
   document.getElementById("applicationContainer").style.display = "none";
@@ -96,7 +96,7 @@ document.getElementById("staffLoginBtn").onclick = () => {
   document.getElementById("applicationContainer").style.display = "none";
 };
 
-// Login form submission
+// Login
 document.getElementById("loginForm").onsubmit = (e) => {
   e.preventDefault();
   const username = document.getElementById("username").value.trim();
@@ -129,7 +129,7 @@ function showPositions() {
   `;
 }
 
-// Load form for a specific position
+// Load form
 function loadForm(position) {
   const positionData = positions[position];
   document.getElementById("formContainer").innerHTML = `
@@ -138,7 +138,9 @@ function loadForm(position) {
       ${positionData.questions
         .map(
           (q) => `
-        <div class="form-field">
+        <div class="form
+
+-field">
           <label>${q}</label>
           <textarea required></textarea>
         </div>`
@@ -163,7 +165,7 @@ function loadForm(position) {
   };
 }
 
-// Send webhook notification
+// Send webhook
 function sendWebhook(applicationID) {
   const data = {
     content: `New application received! Application ID: ${applicationID}`,
@@ -206,10 +208,10 @@ function viewApplications() {
         <td>${positions[app.position].title}</td>
         <td class="${app.status.toLowerCase()}">${app.status}</td>
         <td>
-          <button onclick="showApplication('${app.id}')">Show Application</button>
-          <button onclick="updateStatus('${app.id}', 'Accepted')">Accept</button>
-          <button onclick="updateStatus('${app.id}', 'Refused')">Refuse</button>
-          <button onclick="deleteApplication('${app.id}')">🗑️</button>
+          <button class="button" onclick="showApplication('${app.id}')">Show Application</button>
+          <button class="button" onclick="updateStatus('${app.id}', 'Accepted')">Accept</button>
+          <button class="button" onclick="updateStatus('${app.id}', 'Refused')">Refuse</button>
+          <button class="button" onclick="deleteApplication('${app.id}')">🗑️</button>
         </td>
       </tr>`
         )
@@ -219,7 +221,27 @@ function viewApplications() {
   `;
 }
 
-// Update application status
+// Show application details
+function showApplication(applicationID) {
+  const application = applications.find((app) => app.id === applicationID);
+  if (application) {
+    document.getElementById("applicationDetails").innerHTML = `
+      <h2>Application Details</h2>
+      <p><strong>Application ID:</strong> ${application.id}</p>
+      <p><strong>Position:</strong> ${positions[application.position].title}</p>
+      ${application.answers
+        .map(
+          (answer, index) =>
+            `<p><strong>${positions[application.position].questions[index]}:</strong> ${answer}</p>`
+        )
+        .join("")}
+    `;
+  } else {
+    document.getElementById("applicationDetails").innerHTML = "<p>Application not found.</p>";
+  }
+}
+
+// Update status
 function updateStatus(applicationID, newStatus) {
   const application = applications.find((app) => app.id === applicationID);
   if (application) {
@@ -234,4 +256,75 @@ function deleteApplication(applicationID) {
   applications = applications.filter((app) => app.id !== applicationID);
   localStorage.setItem("applications", JSON.stringify(applications));
   viewApplications();
+}
+
+// Show staff
+function showStaff() {
+  if (!currentUser.isAdmin) {
+    showStatus("Only Admin can view staff!", "error");
+    return;
+  }
+
+  document.getElementById("applicationDetails").innerHTML = `
+    <h2>Staff Members</h2>
+    <ul id="staffList">
+      ${staff
+        .map(
+          (member, index) => `
+        <li>
+          <strong>${member.username}</strong>
+          ${member.username === "Admin" ? 
+            '<button class="button disabled" title="Cannot delete Admin">🛡️</button>' : 
+            `<button class="button" onclick="deleteStaff(${index})">🗑️</button>`}
+        </li>`
+        )
+        .join("")}
+    </ul>
+  `;
+}
+
+// Add staff
+function showAddStaffForm() {
+  if (!currentUser.isAdmin) {
+    showStatus("Only Admin can add staff!", "error");
+    return;
+  }
+
+  document.getElementById("applicationDetails").innerHTML = `
+    <h2>Add New Staff</h2>
+    <form id="addStaffForm">
+      <div class="form-field">
+        <label>Username</label>
+        <input type="text" id="newStaffUsername" required />
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="newStaffPassword" required />
+      </div>
+      <button type="submit" class="button">Add Staff</button>
+    </form>
+  `;
+
+  document.getElementById("addStaffForm").onsubmit = (e) => {
+    e.preventDefault();
+    const username = document.getElementById("newStaffUsername").value.trim();
+    const password = document.getElementById("newStaffPassword").value.trim();
+
+    if (username && password) {
+      staff.push({ username, password, isAdmin: false });
+      localStorage.setItem("staff", JSON.stringify(staff));
+      showStatus(`Staff member "${username}" added successfully!`, "success");
+      document.getElementById("applicationDetails").innerHTML = "";
+    } else {
+      showStatus("Please fill in all fields!", "error");
+    }
+  };
+}
+
+// Delete staff
+function deleteStaff(index) {
+  const deletedStaff = staff.splice(index, 1)[0];
+  localStorage.setItem("staff", JSON.stringify(staff));
+  showStatus(`Staff member "${deletedStaff.username}" deleted successfully!`, "success");
+  showStaff();
 }
